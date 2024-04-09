@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "co-pet"
+version = "0.1.0"
+description = ""
+authors = ["Luis Frentzen <l.frentzen@collabocode.com>"]
+readme = "README.md"
+packages = [{include = "co_pet"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tk = "^0.1.0"
+pyautogui = "^0.9.54"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
