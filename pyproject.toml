@@ -10,6 +10,7 @@ packages = [{include = "co_pet"}]
 python = "^3.9"
 tk = "^0.1.0"
 pyautogui = "^0.9.54"
+pillow = "^10.3.0"
 
 
 [build-system]
