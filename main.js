@@ -1,36 +1,81 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, screen, ipcMain } = require("electron");
 const path = require("node:path");
 
+function getPetWindowSize() {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 1.2)
+  const petWindowWidth = petWindowHeight
+  const petWindowSize = {
+    width: petWindowWidth,
+    height: petWindowHeight
+  }
+
+  return petWindowSize
+}
+
+function petStepHandler(event, dx, dy) {
+  const webContents = event.sender
+  const win = BrowserWindow.fromWebContents(webContents)
+  const petWindowSize = getPetWindowSize()
+  const screenSize = screen.getPrimaryDisplay().workAreaSize;
+
+  let newX = win.getPosition()[0] + dx
+  let newY = win.getPosition()[1] + dy
+
+  const minX = Math.floor(petWindowSize.width * 0.3) - petWindowSize.width
+  const maxX = screenSize.width - Math.floor(petWindowSize.width * 0.3)
+
+  const minY = Math.floor(petWindowSize.height * 0.3) - petWindowSize.height
+  const maxY = screenSize.height - Math.floor(petWindowSize.height * 0.3)
+
+  if (newX > maxX) {
+    newX = minX
+  } else if (newX < minX) {
+    newX = maxX
+  }
+
+  if (newY > maxY) {
+    newY = minY
+  } else if (newY < minY) {
+    newY = maxY
+  }
+
+  win.setBounds({
+    width: petWindowSize.width,
+    height: petWindowSize.height,
+    x: newX,
+    y: newY
+  });
+}
+
 function createWindow() {
-  // Create the browser window.
+  const petWindowSize = getPetWindowSize()
+
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: petWindowSize.width,
+    height: petWindowSize.height,
+    transparent: false,
+    frame: false,
+    useContentSize: true,
+    resizable: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
-      contextIsolation: false,
       enableRemoteModule: true
     },
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile("index.html");
-  mainWindow.webContents.openDevTools();
-
-  globalShortcut.register('CommandOrControl+M', () => {
-    // Move the window to position (x, y)
-    mainWindow.setPosition(100, 100); // Replace 100, 100 with desired coordinates
-  });
-
-  // Open the DevTools.
+  // mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  ipcMain.handle('pet-step', petStepHandler);
   createWindow();
 
   app.on("activate", function () {
