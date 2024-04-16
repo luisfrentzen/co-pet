@@ -4,7 +4,7 @@ const path = require("node:path");
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 1.2)
+  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 2)
   const petWindowWidth = petWindowHeight
   const petWindowSize = {
     width: petWindowWidth,
@@ -55,7 +55,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: petWindowSize.width,
     height: petWindowSize.height,
-    transparent: false,
+    transparent: true,
     frame: false,
     useContentSize: true,
     resizable: false,
@@ -69,6 +69,8 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile("index.html");
   // mainWindow.webContents.openDevTools();
+
+  mainWindow.setAlwaysOnTop(true, 'screen');
 }
 
 // This method will be called when Electron has finished

@@ -1,14 +1,10 @@
-
 function randomIntFromInterval(min, max) { // min and max included 
-  return Math.floor(Math.random() * (max - min + 1) + min)
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 class Pet {
-  /**
-   * @param {HTMLElement} canvas
-   */
   constructor(canvas) {
-    this.canvas = canvas
+    this.canvas = canvas;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -17,113 +13,148 @@ class Pet {
 
     this.petImage = new Image;
 
-    const t = this
-    this.petImage.onload = function () {
-      t.ctx.clearRect(0, 0, t.ctx.canvas.width, t.ctx.canvas.height);
-      t.ctx.drawImage(t.petImage, 0, 0, t.ctx.canvas.width, t.ctx.canvas.height);
-    };
+    this.action = "";
 
-    this.animationInterval = null
-    
+    this.walkDx = 0;
+    this.walkDy = 0;
+
+    this.mirrorHorizontal = false;
+
+    this.currentFrameNumber = 1;
+    this.lastSpriteFrameNumber = 1;
+
+    this.idle();
   }
 
-  playAnimation(type, lastSpriteFrameNumber, duration = -1, postAnimationHandler = () => { }, preFrameAdvanceHandler = async () => { }) {
-    clearInterval(this.animationInterval)
-
-    this.currentFrameNumber = 1
-    this.frameCounter = 0
-
-    const t = this
-
-    this.animationInterval = setInterval(async function () {
-      await preFrameAdvanceHandler()
-
-      if (t.currentFrameNumber > lastSpriteFrameNumber) {
-        t.currentFrameNumber = 1
-      }
-
-      t.petImage.src = `assets/${type}/${type}${t.currentFrameNumber++}.png`;
-      console.log(t.petImage.src)
-
-      if (duration !== -1) {
-        t.frameCounter += 1
-
-        if (t.frameCounter > duration) {
-          clearInterval(t.animationInterval)
-          t.animationInterval = null
-          postAnimationHandler()
-        }
-      }
-    }, 100);
-  }
-
-  idle() {
-    const duration = randomIntFromInterval(20, 30)
-    const postAnimationHandler = async () => {
-      this.walk()
-    }
-    this.playAnimation("idle", 8, duration, postAnimationHandler)
-  }
-
-  stand() {
-    const duration = randomIntFromInterval(10, 15)
-    const nextAction = Math.random() < 0.5 ? "idle" : "walk"
-    const postAnimationHandler = async () => {
-      this[nextAction]()
-    }
-    this.playAnimation("stand", 8, duration, postAnimationHandler)
-  }
-
-  walk() {
-    const t = this
-
-    let dx = randomIntFromInterval(-5, 5)
-    let dy = randomIntFromInterval(-2, 2)
-
-    if (dx === 0 && dy === 0) {
-      dx = 1
-    }
-
-    if (dx < 0) {
+  async render() {
+    const t = this;
+    if (this.mirrorHorizontal == false) {
       this.petImage.onload = function () {
-        t.ctx.clearRect(0, 0, t.ctx.canvas.width, t.ctx.canvas.height);
-        t.ctx.scale(-1, 1);
-        t.ctx.drawImage(t.petImage, -t.petImage.width, 0, -t.ctx.canvas.width, t.ctx.canvas.height);
-      };
-    }
-    else if (dx > 0) {
-      this.petImage.onload = function () {
+        t.ctx.setTransform(1, 0, 0, 1, 0, 0);
         t.ctx.clearRect(0, 0, t.ctx.canvas.width, t.ctx.canvas.height);
         t.ctx.drawImage(t.petImage, 0, 0, t.ctx.canvas.width, t.ctx.canvas.height);
       };
+    } else {
+      this.petImage.onload = function () {
+        t.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        t.ctx.scale(-1, 1);
+        t.ctx.clearRect(-t.petImage.width, 0, -t.ctx.canvas.width, t.ctx.canvas.height);
+        t.ctx.drawImage(t.petImage, -t.petImage.width, 0, -t.ctx.canvas.width, t.ctx.canvas.height);
+      }; 
     }
 
-    const preFrameAdvanceHandler = async () => {
-      await window.electronAPI.petStep(dx, dy)
+    if (this.action === "walk") {
+      await window.electronAPI.petStep(this.walkDx, this.walkDy);
     }
-    const postAnimationHandler = async () => {
-      this.stand()
-    }
-    const duration = randomIntFromInterval(20, 30)
 
-    this.playAnimation("walk", 8, duration, postAnimationHandler, preFrameAdvanceHandler)
+    this.petImage.src = `assets/${this.action}/${this.action}${this.currentFrameNumber++}.png`;
+    
+    if (this.currentFrameNumber > this.lastSpriteFrameNumber) {
+      this.currentFrameNumber = 1;
+    }
   }
 
+  async idle() {
+    this.action = "idle";
+    const duration = randomIntFromInterval(3000, 5000);
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
 
-  async step(dx, dy) {
-    if (this.walkCurrentFrameNumber > this.walkLastFrameNumber) {
-      this.walkCurrentFrameNumber = 1
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, duration);
+    });
+  }
+
+  async stand() {
+    this.action = "stand";
+    const duration = randomIntFromInterval(3000, 5000);
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, duration);
+    });
+  }
+
+  async walk() {
+    this.action = "walk";
+    this.walkDx = randomIntFromInterval(5, 9);
+    this.walkDy = randomIntFromInterval(3, 5);
+    const directionX = Math.random() < 0.5;
+    const directionY = Math.random() < 0.5;
+
+    if (directionX > 0.5) {
+      this.mirrorHorizontal = false
+    } else{
+      this.mirrorHorizontal = true
+      this.walkDx *= -1
     }
 
-    await window.electronAPI.petStep(dx, dy)
-    this.petImage.src = `assets/walk/walk${this.walkCurrentFrameNumber++}.png`;
+    if (directionY > 0.5) {
+      this.walkDy *= -1
+    } 
+
+    const duration = randomIntFromInterval(3000, 5000);
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, duration);
+    });
+  }
+
+  async randomizeAction () {
+    while(true) {
+      const nextActionChance = Math.random();
+
+      if (nextActionChance < 0.33) {
+        await this.walk()
+      } else if (nextActionChance < 0.66) {
+        await this.stand()
+      } else {
+        await this.idle()
+      }
+    }
+    
   }
 }
 
 
 const canvas = document.getElementById('canvas');
 
-const pet = new Pet(canvas)
-// pet.walk()
-pet.walk()
+const pet = new Pet(canvas);
 
+var fpsInterval = 1000 / 8;
+var currentFrame;
+var elapsed;
+var then;
+
+async function updateFrame(timeStamp) {
+  currentFrame = window.performance.now();
+  elapsed = currentFrame - then;
+
+  if (elapsed > fpsInterval) {
+    then = currentFrame - (elapsed % fpsInterval);
+    await pet.render();
+  }
+
+  requestAnimationFrame(updateFrame);
+};
+
+function playAnimation() {
+  then = window.performance.now();
+
+  requestAnimationFrame(updateFrame);
+};
+
+pet.randomizeAction();
+playAnimation();
