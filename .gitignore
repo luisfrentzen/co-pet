@@ -23,6 +23,8 @@ SHASUMS256.txt
 compile_commands.json
 .envrc
 
+*.ipynb
+
 # npm package
 /npm/dist
 /npm/path.txt
