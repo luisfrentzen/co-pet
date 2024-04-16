@@ -7,6 +7,7 @@
  * https://www.electronjs.org/docs/latest/tutorial/sandbox
  */
 const { contextBridge, ipcRenderer } = require('electron')
+const apiService = require('./apiService');
 
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
@@ -21,4 +22,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 contextBridge.exposeInMainWorld('electronAPI', {
   petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy)
+})
+
+contextBridge.exposeInMainWorld('geminiAPI', {
+  apiService: apiService
 })

@@ -158,3 +158,16 @@ function playAnimation() {
 
 pet.randomizeAction();
 playAnimation();
+
+const apiService = window.geminiAPI.apiService
+async function screenshot() {
+  try {
+    const data = await apiService.screenshot();
+    console.log('Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+screenshot()
+
+
