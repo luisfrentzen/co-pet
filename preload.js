@@ -27,3 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 contextBridge.exposeInMainWorld('geminiAPI', {
   apiService: apiService
 })
+
+ipcRenderer.on('petPosition', (event, newPosition) => {
+  window.dispatchEvent(new CustomEvent('petPosition', { detail: newPosition }));
+});

@@ -1,3 +1,13 @@
+function handlePetPosition(x, y) {
+  pet.currentX = x;
+  pet.currentY = y;
+}
+
+window.addEventListener('petPosition', function(event) {
+  const newPosition = event.detail;
+  handlePetPosition(newPosition.x, newPosition.y);
+});
+
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -22,6 +32,9 @@ class Pet {
 
     this.currentFrameNumber = 1;
     this.lastSpriteFrameNumber = 1;
+
+    this.currentX = 0
+    this.currentY = 0
 
     this.idle();
   }
@@ -112,11 +125,37 @@ class Pet {
     });
   }
 
+  async walkToPosition(x, y) {
+    this.action = "walk";
+    const dx = x - this.currentX;
+    const dy = y - this.currentY;
+    
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    
+    const duration = distance * 10; // Adjust this factor as needed
+    
+    const stepX = dx / duration;
+    const stepY = dy / duration;
+    
+    this.walkDx = Math.round(stepX * (dx > 0 ? 1 : -1) * 100);
+    this.walkDy = Math.round(stepY * (dy > 0 ? 1 : -1) * 100);
+    
+    this.mirrorHorizontal = this.walkDx < 0;
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, duration);
+    });
+  }
+
   async randomizeAction () {
     while(true) {
       const nextActionChance = Math.random();
-
-      if (nextActionChance < 0.33) {
+      if (nextActionChance < 0.50) {
         await this.walk()
       } else if (nextActionChance < 0.66) {
         await this.stand()
@@ -168,6 +207,6 @@ async function screenshot() {
     console.error('Error fetching data:', error);
   }
 }
-screenshot()
+// screenshot()
 
 

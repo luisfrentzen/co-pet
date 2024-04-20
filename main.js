@@ -47,6 +47,8 @@ function petStepHandler(event, dx, dy) {
     x: newX,
     y: newY
   });
+
+  webContents.send('petPosition', { x: newX, y: newY });
 }
 
 function createWindow() {
