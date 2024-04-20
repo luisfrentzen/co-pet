@@ -88,7 +88,7 @@ class GeminiLLM():
         prompt += f"{all_files}\n"
         prompt += "\n"
         prompt += "Interpret or figure out what is the main content of the given directory by knowing the filenames and the subdirectorie names only.\n"
-        # prompt += "For example answer might be: It's a python based project for object detection, or It's a gallery of photos when the user at grade 12"
+        prompt += "And any thoughts or insights or comments regarding the directory? maybe something that can be improved?"
 
         response = self.chat.send_message(prompt)
         self.pop_history()
