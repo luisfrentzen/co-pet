@@ -7,6 +7,17 @@ from prompts import SYSTEM_PET, SYSTEM_VISION, MODEL_AFFIRM
 
 load_dotenv()
 
+def list_files(directory):
+    dir_len = len(directory)
+    file_list = []
+    for root, dirs, files in os.walk(directory):
+        # Remove hidden directories
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        for file in files:
+            if not file.startswith('.'):
+                file_list.append(os.path.join(root, file)[dir_len:])
+    return file_list
+
 class GeminiLLM():
     def __init__(self, max_n_history=20):
         genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
@@ -67,6 +78,23 @@ class GeminiLLM():
         
         return {"initial_response": initial_response, "additional_response": additional_response}
     
+    def query_directory(self, directory):
+        all_files = list_files(directory)
+        all_files = str(all_files)
+
+        prompt = f"Given a directory named {directory}\n"
+        prompt += "\n"
+        prompt += f"And all the files names and its subdirectories inside\n"
+        prompt += f"{all_files}\n"
+        prompt += "\n"
+        prompt += "Interpret or figure out what is the main content of the given directory by knowing the filenames and the subdirectorie names only.\n"
+        # prompt += "For example answer might be: It's a python based project for object detection, or It's a gallery of photos when the user at grade 12"
+
+        response = self.chat.send_message(prompt)
+        self.pop_history()
+        return response.text
+
+    
     def append_history(self, user_query, model_response):
         c = content_types.to_content({"role": "user", "parts": user_query})
         self.chat.history.append(c)
@@ -98,3 +126,9 @@ if __name__ == "__main__":
     print(response)
     response = gemini.query("What's other games have similar genre?")
     print(response)
+
+    gemini.reset_history()
+
+    response = gemini.query_directory("D:\Visto\co-pet")
+    print(response)
+    
