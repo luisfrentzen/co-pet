@@ -8,6 +8,16 @@ window.addEventListener('petPosition', function(event) {
   handlePetPosition(newPosition.x, newPosition.y);
 });
 
+function handleScreenInfo(width, height) {
+  pet.screenWidth = width;
+  pet.screenHeight = height;
+}
+
+window.addEventListener('screenInfo', function(event) {
+  const newPosition = event.detail;
+  handlePetPosition(newPosition.screenWidth, newPosition.screenHeight);
+});
+
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -36,7 +46,16 @@ class Pet {
     this.currentX = 0
     this.currentY = 0
 
+    this.getScreenInfo()
+
     this.idle();
+  }
+
+  async getScreenInfo(){
+    const t = this;
+    const {width, height} = await window.electronAPI.screenInfo()
+    t.screenWidth = width
+    t.screenHeight = height
   }
 
   async render() {
@@ -129,17 +148,15 @@ class Pet {
     this.action = "walk";
     const dx = x - this.currentX;
     const dy = y - this.currentY;
-    
     const distance = Math.sqrt(dx*dx + dy*dy);
-    
-    const duration = distance * 10; // Adjust this factor as needed
-    
-    const stepX = dx / duration;
-    const stepY = dy / duration;
-    
-    this.walkDx = Math.round(stepX * (dx > 0 ? 1 : -1) * 100);
-    this.walkDy = Math.round(stepY * (dy > 0 ? 1 : -1) * 100);
-    
+    const stepCount = distance / 20
+
+    const stepX = dx / stepCount;
+    const stepY = dy / stepCount;
+
+    this.walkDx = Math.round(stepX);
+    this.walkDy = Math.round(stepY);
+
     this.mirrorHorizontal = this.walkDx < 0;
     
     this.currentFrame = 1;
@@ -148,16 +165,38 @@ class Pet {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve();
-      }, duration);
+      }, stepCount * 1000 / 8);
     });
+  }
+
+  async screenshot(){
+    try {
+      const data = await apiService.screenshot();
+      const responseWithCoordinate = JSON.parse(data.data.response.initial_response)
+      console.log('Data:', data);
+      const {x, y} = this.calculateCoordinateByScreenRatio(responseWithCoordinate.x, responseWithCoordinate.y, data.data.screen_size.width, data.data.screen_size.height)
+      console.log(x,y)
+      await this.walkToPosition(x, y)
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  async randomWalkAroundScreen(){
+    let width = 1920
+    let height = 1080
+    const {x, y} = this.calculateCoordinateByScreenRatio(Math.floor(Math.random() * width), Math.floor(Math.random() * height), width, height)
+    console.log('generated', x,y)
+    await this.walkToPosition(x, y)
   }
 
   async randomizeAction () {
     while(true) {
       const nextActionChance = Math.random();
       if (nextActionChance < 0.50) {
-        await this.walk()
-      } else if (nextActionChance < 0.66) {
+        await this.randomWalkAroundScreen()
+      }
+       else if (nextActionChance < 0.66) {
         await this.stand()
       } else {
         await this.idle()
@@ -165,8 +204,18 @@ class Pet {
     }
     
   }
-}
 
+  calculateCoordinateByScreenRatio(x, y, screenshotWidth, screenshotHeight){
+    let widthScalingFactor = this.screenWidth / screenshotWidth
+    let heightScalingFactor = this.screenHeight / screenshotHeight
+    let convertedX = x * widthScalingFactor
+    let convertedY = y * heightScalingFactor
+    return {
+      x: x - this.canvas.width,
+      y: y - this.canvas.height
+    }
+  }
+}
 
 const canvas = document.getElementById('canvas');
 
@@ -199,14 +248,5 @@ pet.randomizeAction();
 playAnimation();
 
 const apiService = window.geminiAPI.apiService
-async function screenshot() {
-  try {
-    const data = await apiService.screenshot();
-    console.log('Data:', data);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-}
-// screenshot()
 
 
