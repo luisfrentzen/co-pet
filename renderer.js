@@ -53,9 +53,9 @@ class Pet {
 
   async getScreenInfo(){
     const t = this;
-    const {width, height} = await window.electronAPI.screenInfo()
-    t.screenWidth = width
-    t.screenHeight = height
+    const {screenWidth, screenHeight} = await window.electronAPI.screenInfo()
+    t.screenWidth = screenWidth
+    t.screenHeight = screenHeight
   }
 
   async render() {
@@ -182,19 +182,18 @@ class Pet {
     }
   }
 
-  async randomWalkAroundScreen(){
-    let width = 1920
-    let height = 1080
-    const {x, y} = this.calculateCoordinateByScreenRatio(Math.floor(Math.random() * width), Math.floor(Math.random() * height), width, height)
-    console.log('generated', x,y)
-    await this.walkToPosition(x, y)
-  }
+  // async randomWalkAroundScreen(){
+  //   let width = 1920
+  //   let height = 1080
+  //   const {x, y} = this.calculateCoordinateByScreenRatio(1920, 1080, width, height)
+  //   await this.walkToPosition(x, y)
+  // }
 
   async randomizeAction () {
     while(true) {
       const nextActionChance = Math.random();
       if (nextActionChance < 0.50) {
-        await this.randomWalkAroundScreen()
+        await this.screenshot()
       }
        else if (nextActionChance < 0.66) {
         await this.stand()
@@ -211,8 +210,8 @@ class Pet {
     let convertedX = x * widthScalingFactor
     let convertedY = y * heightScalingFactor
     return {
-      x: x - this.canvas.width,
-      y: y - this.canvas.height
+      x: convertedX >= 0 ? convertedX - (this.canvas.width/2) : convertedX + (this.canvas.width/2),
+      y: convertedY >= 0 ? convertedY - (this.canvas.height/2) : convertedY + (this.canvas.height/2)
     }
   }
 }

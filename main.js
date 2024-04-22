@@ -54,7 +54,6 @@ function petStepHandler(event, dx, dy) {
 function initPositionHandler(event){
   const webContents = event.sender
   const win = BrowserWindow.fromWebContents(webContents)
-  const petWindowSize = getPetWindowSize()
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   let newX = win.getPosition()[0]
