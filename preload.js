@@ -7,6 +7,14 @@
  * https://www.electronjs.org/docs/latest/tutorial/sandbox
  */
 const { contextBridge, ipcRenderer } = require('electron')
+const io = require('socket.io-client');
+
+const socket = io('http://localhost:5000');
+console.log(socket)
+socket.on('directory', (data) => {
+  console.log('Received directory data:', data);
+  // Handle the received data here
+});
 
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
@@ -20,5 +28,6 @@ window.addEventListener('DOMContentLoaded', () => {
   })
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy)
+  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
+  socket: socket
 })
