@@ -1,13 +1,13 @@
 import threading
 import time
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 from gemini.llm import GeminiLLM
 import pyautogui
 from win32api import GetMonitorInfo, EnumDisplayMonitors
 
 app = Flask(__name__)
-# socketio = SocketIO(app)
+socketio = SocketIO(app)
 gemini = GeminiLLM()
 
 @app.route("/conversation")
@@ -40,6 +40,12 @@ def reset_history():
 def screen_info():
     pass
 
+@app.route('/directory/<path:dir>')
+def directory(dir):
+   response = gemini.query_directory(dir)
+   socketio.emit('directory', {'data': response})
+   return response
+
 # def background_screenshot_task():
 #     while True:
 #         im = pyautogui.screenshot()
@@ -53,6 +59,6 @@ if __name__ == '__main__':
     # background_thread = threading.Thread(target=background_screenshot_task)
     # background_thread.daemon = True
     # background_thread.start()
+    socketio.run(app, debug=True)
+    # app.run(debug=True)
 
-    # socketio.run(app, debug=True)
-    app.run(debug=True)
