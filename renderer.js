@@ -60,12 +60,6 @@ class Pet {
     
     this.currentFrame = 1;
     this.lastSpriteFrameNumber = 8;
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, duration);
-    });
   }
 
   async stand() {
@@ -74,18 +68,12 @@ class Pet {
     
     this.currentFrame = 1;
     this.lastSpriteFrameNumber = 8;
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, duration);
-    });
   }
 
   async walk() {
     this.action = "walk";
     this.walkDx = randomIntFromInterval(5, 9);
-    this.walkDy = randomIntFromInterval(3, 5);
+    this.walkDy = 0;
     const directionX = Math.random() < 0.5;
     const directionY = Math.random() < 0.5;
 
@@ -104,27 +92,18 @@ class Pet {
     
     this.currentFrame = 1;
     this.lastSpriteFrameNumber = 8;
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, duration);
-    });
   }
 
-  async randomizeAction () {
-    while(true) {
-      const nextActionChance = Math.random();
+  randomizeAction () {
+    const nextActionChance = Math.random();
 
-      if (nextActionChance < 0.33) {
-        await this.walk()
-      } else if (nextActionChance < 0.66) {
-        await this.stand()
-      } else {
-        await this.idle()
-      }
+    if (nextActionChance < 0.33) {
+      this.walk()
+    } else if (nextActionChance < 0.66) {
+      this.stand()
+    } else {
+      this.idle()
     }
-    
   }
 }
 
@@ -137,6 +116,8 @@ var fpsInterval = 1000 / 8;
 var currentFrame;
 var elapsed;
 var then;
+var duration;
+var durationCounter;
 
 async function updateFrame(timeStamp) {
   currentFrame = window.performance.now();
@@ -150,11 +131,27 @@ async function updateFrame(timeStamp) {
   requestAnimationFrame(updateFrame);
 };
 
-function playAnimation() {
+function playAnimation(duration) {
   then = window.performance.now();
 
   requestAnimationFrame(updateFrame);
+
 };
 
 pet.randomizeAction();
 playAnimation();
+
+window.electronAPI.onReceiveMessage((message) => {
+  stopTyping = true;
+  i = 0;
+
+  response = message;
+  chatbox.value = "";
+
+  resizeBox();
+
+  then = window.performance.now();
+
+  stopTyping = false;
+  requestAnimationFrame(typeWriter);
+})

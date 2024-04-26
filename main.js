@@ -1,6 +1,10 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, screen, ipcMain } = require("electron");
+const { app, BrowserWindow, screen, ipcMain, globalShortcut } = require("electron");
 const path = require("node:path");
+
+var petWindow;
+var chatboxInputWindow;
+var chatboxResponseWindow;
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -49,15 +53,16 @@ function petStepHandler(event, dx, dy) {
   });
 }
 
-function createWindow() {
+function createPetWindow() {
   const petWindowSize = getPetWindowSize()
 
-  const mainWindow = new BrowserWindow({
+  petWindow = new BrowserWindow({
     width: petWindowSize.width,
     height: petWindowSize.height,
     transparent: true,
     frame: false,
     useContentSize: true,
+    skipTaskbar: true,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -66,19 +71,99 @@ function createWindow() {
     },
   });
 
-  // and load the index.html of the app.
-  mainWindow.loadFile("index.html");
-  // mainWindow.webContents.openDevTools();
+  petWindow.loadFile("index.html");
+  petWindow.setAlwaysOnTop(true, "screen");
+}
 
-  mainWindow.setAlwaysOnTop(true, 'screen');
+function createChatboxInputWindow() {
+  chatboxInputWindow = new BrowserWindow({
+    width: 800,
+    height: 400,
+    transparent: true,
+    frame: false,
+    skipTaskbar: true,
+    useContentSize: true,
+    resizable: true,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true,
+      enableRemoteModule: true
+    },
+  });
+
+  chatboxInputWindow.loadFile("chatbox-input.html");
+  chatboxInputWindow.setAlwaysOnTop(true, "screen");
+  chatboxInputWindow.webContents.openDevTools();
+}
+
+function createChatboxResponseWindow() {
+  chatboxResponseWindow = new BrowserWindow({
+    width: 800,
+    height: 400,
+    x: 0,
+    y: 0,
+    transparent: true,
+    frame: false,
+    skipTaskbar: true,
+    useContentSize: true,
+    resizable: true,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true,
+      enableRemoteModule: true
+    },
+  });
+
+  chatboxResponseWindow.loadFile("chatbox-response.html");
+  chatboxInputWindow.setAlwaysOnTop(true, "screen");
+  chatboxResponseWindow.webContents.openDevTools();
+
+  return chatboxResponseWindow;
+}
+
+function handleSubmitMessage (event, type, message) {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  
+  if (type === "input") {
+    chatboxResponseWindow.show();
+
+    chatboxResponseWindow.setBounds({
+      width: 800,
+      height: 400,
+      x: petWindow.getPosition()[0] - 700,
+      y: petWindow.getPosition()[1] - 300
+    });
+    chatboxResponseWindow.webContents.send("receive-message", message)
+    petWindow.webContents.send("receive-message", message)
+  };
+
+  win.hide();
+}
+
+function sendMessage (window, message) {
+  window.webContents.send('message', message)
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  ipcMain.on('submit-message', handleSubmitMessage);
   ipcMain.handle('pet-step', petStepHandler);
-  createWindow();
+  createPetWindow();
+  createChatboxInputWindow();
+  createChatboxResponseWindow();
+
+  globalShortcut.register('CommandOrControl+L', () => {
+    if(chatboxInputWindow.isVisible()) {
+      chatboxInputWindow.hide();
+    } else {
+      chatboxInputWindow.show();
+    }
+  })
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
@@ -96,3 +181,8 @@ app.on("window-all-closed", function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts.
+  globalShortcut.unregisterAll()
+})

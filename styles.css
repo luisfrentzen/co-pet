@@ -1,0 +1,50 @@
+@font-face {
+  font-family: 'pixelFont'; /*a name to be used later*/
+  src: url('assets/Minecraftia-Regular.ttf'); /*URL to font*/
+}
+
+body {
+  width: 100vw;
+}
+
+.chatbox {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 6px;
+  background-color: white !important;
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+  font-family: pixelFont;
+  line-height: 1.5;
+}
+
+.chatbox-border {
+  display: flex;
+  justify-content: space-between;
+  border: 60px solid transparent;
+  border-image: url(assets/dialog.png) 40% round;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -o-pixelated;
+  image-rendering: pixelated;
+  width: 100vw - 120px;
+  position: absolute; 
+  bottom: 0;
+}
+
+.button {
+  cursor: pointer;
+  height: 40px;
+  padding-left: 20px;
+  position: absolute;
+  bottom: 0;
+}
+
+.button-area {
+  width: 10%;
+  position: relative;
+  background-color: white;
+}
