@@ -4,7 +4,7 @@ const path = require("node:path");
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 2)
+  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 3)
   const petWindowWidth = petWindowHeight
   const petWindowSize = {
     width: petWindowWidth,
@@ -68,6 +68,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: petWindowSize.width,
     height: petWindowSize.height,
+    x: screen.getPrimaryDisplay().workAreaSize.width - getPetWindowSize().width,
+    y: screen.getPrimaryDisplay().workAreaSize.height,
     transparent: true,
     frame: false,
     useContentSize: true,
@@ -81,7 +83,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile("index.html");
-  mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools({mode: "detach"});
 
   mainWindow.setAlwaysOnTop(true, 'screen');
 }
