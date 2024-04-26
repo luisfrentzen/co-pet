@@ -30,9 +30,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 contextBridge.exposeInMainWorld('electronAPI', {
   petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
-  socket: socket
+  socket: socket,
   screenInfo: () => ipcRenderer.invoke('init-position'),
-
 })
 
 contextBridge.exposeInMainWorld('geminiAPI', {
