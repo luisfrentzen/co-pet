@@ -73,12 +73,13 @@ function createPetWindow() {
 
   petWindow.loadFile("index.html");
   petWindow.setAlwaysOnTop(true, "screen");
+  petWindow.setIgnoreMouseEvents(true)
 }
 
 function createChatboxInputWindow() {
   chatboxInputWindow = new BrowserWindow({
-    width: 800,
-    height: 400,
+    width: 600,
+    height: 56,
     transparent: true,
     frame: false,
     skipTaskbar: true,
@@ -94,13 +95,13 @@ function createChatboxInputWindow() {
 
   chatboxInputWindow.loadFile("chatbox-input.html");
   chatboxInputWindow.setAlwaysOnTop(true, "screen");
-  chatboxInputWindow.webContents.openDevTools();
+  // chatboxInputWindow.webContents.openDevTools();
 }
 
 function createChatboxResponseWindow() {
   chatboxResponseWindow = new BrowserWindow({
-    width: 800,
-    height: 400,
+    width: 500,
+    height: 40,
     x: 0,
     y: 0,
     transparent: true,
@@ -118,7 +119,7 @@ function createChatboxResponseWindow() {
 
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxInputWindow.setAlwaysOnTop(true, "screen");
-  chatboxResponseWindow.webContents.openDevTools();
+  // chatboxResponseWindow.webContents.openDevTools();
 
   return chatboxResponseWindow;
 }
