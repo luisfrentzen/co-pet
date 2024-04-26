@@ -21,7 +21,7 @@ def screenshot():
     im = pyautogui.screenshot()
     im.save(f"monitor.png")
     width, height = im.size
-    response = gemini.query_with_image("monitor.png", "Give opinion about this image as desktop pet?, from the image sent above if you are interested in some position from the screenshot you may also return the coordinate position or random coordinate inside are of 1080 x 1920 with json format {opinion,x,y}")
+    response = gemini.query_with_image("monitor.png", "Describe the image")
     return {'response': response, 'screen_size': {
         'width': width,
         'height': height
