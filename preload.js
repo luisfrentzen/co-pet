@@ -7,6 +7,7 @@
  * https://www.electronjs.org/docs/latest/tutorial/sandbox
  */
 const { contextBridge, ipcRenderer } = require('electron')
+const apiService = require('./apiService');
 
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
@@ -20,5 +21,14 @@ window.addEventListener('DOMContentLoaded', () => {
   })
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy)
+  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
+  screenInfo: () => ipcRenderer.invoke('init-position'),
 })
+
+contextBridge.exposeInMainWorld('geminiAPI', {
+  apiService: apiService
+})
+
+ipcRenderer.on('petPosition', (event, newPosition) => {
+  window.dispatchEvent(new CustomEvent('petPosition', { detail: newPosition }));
+});

@@ -3,7 +3,7 @@ import PIL.Image
 import google.generativeai as genai
 from google.generativeai.types import content_types
 from dotenv import load_dotenv
-from prompts import SYSTEM_PET, SYSTEM_VISION, MODEL_AFFIRM
+from .prompts import SYSTEM_PET, SYSTEM_VISION, MODEL_AFFIRM
 
 load_dotenv()
 

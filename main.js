@@ -47,6 +47,19 @@ function petStepHandler(event, dx, dy) {
     x: newX,
     y: newY
   });
+
+  webContents.send('petPosition', { x: newX, y: newY });
+}
+
+function initPositionHandler(event){
+  const webContents = event.sender
+  const win = BrowserWindow.fromWebContents(webContents)
+  const screenSize = screen.getPrimaryDisplay().workAreaSize;
+
+  let newX = win.getPosition()[0]
+  let newY = win.getPosition()[1]
+  webContents.send('petPosition', { x: newX, y: newY});
+  return { screenWidth: screenSize.width, screenHeight: screenSize.height};
 }
 
 function createWindow() {
@@ -68,7 +81,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile("index.html");
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   mainWindow.setAlwaysOnTop(true, 'screen');
 }
@@ -78,8 +91,10 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   ipcMain.handle('pet-step', petStepHandler);
+  ipcMain.handle('init-position', initPositionHandler);
+  
   createWindow();
-
+  
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
