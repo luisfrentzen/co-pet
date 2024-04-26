@@ -10,11 +10,12 @@ const { contextBridge, ipcRenderer } = require('electron')
 const io = require('socket.io-client');
 
 const socket = io('http://localhost:5000');
-console.log(socket)
 socket.on('directory', (data) => {
   console.log('Received directory data:', data);
   // Handle the received data here
 });
+
+const apiService = require('./apiService');
 
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
@@ -30,4 +31,14 @@ window.addEventListener('DOMContentLoaded', () => {
 contextBridge.exposeInMainWorld('electronAPI', {
   petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
   socket: socket
+  screenInfo: () => ipcRenderer.invoke('init-position'),
+
 })
+
+contextBridge.exposeInMainWorld('geminiAPI', {
+  apiService: apiService
+})
+
+ipcRenderer.on('petPosition', (event, newPosition) => {
+  window.dispatchEvent(new CustomEvent('petPosition', { detail: newPosition }));
+});
