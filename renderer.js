@@ -1,3 +1,23 @@
+function handlePetPosition(x, y) {
+  pet.currentX = x;
+  pet.currentY = y;
+}
+
+window.addEventListener('petPosition', function(event) {
+  const newPosition = event.detail;
+  handlePetPosition(newPosition.x, newPosition.y);
+});
+
+function handleScreenInfo(width, height) {
+  pet.screenWidth = width;
+  pet.screenHeight = height;
+}
+
+window.addEventListener('screenInfo', function(event) {
+  const newPosition = event.detail;
+  handlePetPosition(newPosition.screenWidth, newPosition.screenHeight);
+});
+
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -23,7 +43,19 @@ class Pet {
     this.currentFrameNumber = 1;
     this.lastSpriteFrameNumber = 1;
 
+    this.currentX = 0
+    this.currentY = 0
+
+    this.getScreenInfo()
+
     this.idle();
+  }
+
+  async getScreenInfo(){
+    const t = this;
+    const {screenWidth, screenHeight} = await window.electronAPI.screenInfo()
+    t.screenWidth = screenWidth
+    t.screenHeight = screenHeight
   }
 
   async render() {
@@ -94,19 +126,101 @@ class Pet {
     this.lastSpriteFrameNumber = 8;
   }
 
-  randomizeAction () {
-    const nextActionChance = Math.random();
+  async walkToPosition(x, y) {
+    this.action = "walk";
+    const dx = x - this.currentX;
+    const dy = y - this.currentY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    const stepCount = distance / 20
 
-    if (nextActionChance < 0.33) {
-      this.walk()
-    } else if (nextActionChance < 0.66) {
-      this.stand()
-    } else {
-      this.idle()
+    const stepX = dx / stepCount;
+    const stepY = dy / stepCount;
+
+    this.walkDx = Math.round(stepX);
+    this.walkDy = Math.round(stepY);
+
+    this.mirrorHorizontal = this.walkDx < 0;
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, duration);
+    });
+  }
+
+  async walkToPosition(x, y) {
+    this.action = "walk";
+    const dx = x - this.currentX;
+    const dy = y - this.currentY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    const stepCount = distance / 20
+
+    const stepX = dx / stepCount;
+    const stepY = dy / stepCount;
+
+    this.walkDx = Math.round(stepX);
+    this.walkDy = Math.round(stepY);
+
+    this.mirrorHorizontal = this.walkDx < 0;
+    
+    this.currentFrame = 1;
+    this.lastSpriteFrameNumber = 8;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, stepCount * 1000 / 8);
+    });
+  }
+
+  async screenshot(){
+    try {
+      const data = await apiService.screenshot();
+      const responseWithCoordinate = JSON.parse(data.data.response.initial_response)
+      console.log('Data:', data);
+      const {x, y} = this.calculateCoordinateByScreenRatio(responseWithCoordinate.x, responseWithCoordinate.y, data.data.screen_size.width, data.data.screen_size.height)
+      console.log(x,y)
+      await this.walkToPosition(x, y)
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  // async randomWalkAroundScreen(){
+  //   let width = 1920
+  //   let height = 1080
+  //   const {x, y} = this.calculateCoordinateByScreenRatio(1920, 1080, width, height)
+  //   await this.walkToPosition(x, y)
+  // }
+
+  async randomizeAction () {
+    while(true) {
+      const nextActionChance = Math.random();
+      if (nextActionChance < 0.50) {
+        await this.screenshot()
+      }
+       else if (nextActionChance < 0.66) {
+        await this.stand()
+      } else {
+        await this.idle()
+      }
+    }
+  }
+
+  calculateCoordinateByScreenRatio(x, y, screenshotWidth, screenshotHeight){
+    let widthScalingFactor = this.screenWidth / screenshotWidth
+    let heightScalingFactor = this.screenHeight / screenshotHeight
+    let convertedX = x * widthScalingFactor
+    let convertedY = y * heightScalingFactor
+    return {
+      x: convertedX >= 0 ? convertedX - (this.canvas.width/2) : convertedX + (this.canvas.width/2),
+      y: convertedY >= 0 ? convertedY - (this.canvas.height/2) : convertedY + (this.canvas.height/2)
     }
   }
 }
-
 
 const canvas = document.getElementById('canvas');
 
@@ -140,6 +254,8 @@ function playAnimation(duration) {
 
 pet.randomizeAction();
 playAnimation();
+
+const apiService = window.geminiAPI.apiService
 
 window.electronAPI.onReceiveMessage((message) => {
   stopTyping = true;
