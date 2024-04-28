@@ -8,7 +8,7 @@ var chatboxResponseWindow;
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 2)
+  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 3)
   const petWindowWidth = petWindowHeight
   const petWindowSize = {
     width: petWindowWidth,
@@ -72,6 +72,8 @@ function createPetWindow() {
   petWindow = new BrowserWindow({
     width: petWindowSize.width,
     height: petWindowSize.height,
+    x: screen.getPrimaryDisplay().workAreaSize.width - getPetWindowSize().width,
+    y: screen.getPrimaryDisplay().workAreaSize.height,
     transparent: true,
     frame: false,
     useContentSize: true,
