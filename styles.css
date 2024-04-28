@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'pixelFont'; /*a name to be used later*/
-  src: url('assets/Minecraftia-Regular.ttf'); /*URL to font*/
+  font-family: 'pixelFont';
+  src: url('assets/Minecraftia-Regular.ttf');
 }
 
 body {

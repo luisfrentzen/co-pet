@@ -8,8 +8,8 @@ var chatboxResponseWindow;
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const petWindowHeight = Math.round(primaryDisplay.workAreaSize.height / 3)
-  const petWindowWidth = petWindowHeight
+  const petWindowHeight = 272
+  const petWindowWidth = 272
   const petWindowSize = {
     width: petWindowWidth,
     height: petWindowHeight
@@ -67,13 +67,13 @@ function initPositionHandler(event){
 }
 
 function createPetWindow() {
-  const petWindowSize = getPetWindowSize()
-
+  const petWindowSize = getPetWindowSize();
+  
   petWindow = new BrowserWindow({
     width: petWindowSize.width,
     height: petWindowSize.height,
-    x: screen.getPrimaryDisplay().workAreaSize.width - getPetWindowSize().width,
-    y: screen.getPrimaryDisplay().workAreaSize.height,
+    x: 500,
+    y: screen.getPrimaryDisplay().workAreaSize.height - getPetWindowSize().height,
     transparent: true,
     frame: false,
     useContentSize: true,
@@ -88,7 +88,8 @@ function createPetWindow() {
 
   petWindow.loadFile("index.html");
   petWindow.setAlwaysOnTop(true, "screen");
-  petWindow.setIgnoreMouseEvents(true)
+  petWindow.setIgnoreMouseEvents(true);
+  // petWindow.webContents.openDevTools();
 }
 
 function createChatboxInputWindow() {
@@ -115,16 +116,14 @@ function createChatboxInputWindow() {
 
 function createChatboxResponseWindow() {
   chatboxResponseWindow = new BrowserWindow({
-    width: 500,
-    height: 40,
-    x: 0,
-    y: 0,
+    width: 1000,
+    height: 600,
     transparent: true,
     frame: false,
     skipTaskbar: true,
     useContentSize: true,
     resizable: true,
-    show: false,
+    // show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -154,9 +153,23 @@ function handleSubmitMessage (event, type, message) {
     });
     chatboxResponseWindow.webContents.send("receive-message", message)
     petWindow.webContents.send("receive-message", message)
+
+    win.hide();
+  }
+  else if (type === "response-size") {
+    const width = Math.ceil(message.width); 
+    const height = Math.ceil(message.height); 
+    chatboxResponseWindow.setBounds({
+      width: width,
+      height: height,
+      x: petWindow.getPosition()[0] - width + 250,
+      y: petWindow.getPosition()[1] - height + 50,
+    });
+  } 
+  else if (type === "close") {
+    win.hide();
   };
 
-  win.hide();
 }
 
 function sendMessage (window, message) {
