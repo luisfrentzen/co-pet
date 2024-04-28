@@ -111,6 +111,9 @@ function drawResponse(text) {
   })
 }
 
-drawResponse("fafefefifjai famjefiaedsafjwfij defdsfsadf\nfwae\ng dsfdsa dsfasdfasfdsa faeaewfawf f awfweefewaf efeaef")
 
 canvas.addEventListener("click", () => { window.electronAPI.submitMessage("close", null) })
+
+window.electronAPI.onReceiveMessage((message) => {
+  drawResponse(message);
+})

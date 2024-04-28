@@ -123,7 +123,7 @@ function createChatboxResponseWindow() {
     skipTaskbar: true,
     useContentSize: true,
     resizable: true,
-    // show: false,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -165,6 +165,8 @@ function handleSubmitMessage (event, type, message) {
       x: petWindow.getPosition()[0] - width + 250,
       y: petWindow.getPosition()[1] - height + 50,
     });
+
+    chatboxResponseWindow.show();
   } 
   else if (type === "close") {
     win.hide();
