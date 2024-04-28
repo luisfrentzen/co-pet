@@ -4,7 +4,7 @@
  * Electron's renderer process modules and some polyfilled
  * Node.js functions.
  *
- * https://www.electronjs.org/docs/latest/tutorial/sandbox
+ * https://www.electronjs.org/docs/latest/tutorial/sandboxF
  */
 const { contextBridge, ipcRenderer } = require('electron')
 const io = require('socket.io-client');
@@ -17,21 +17,13 @@ socket.on('directory', (data) => {
 
 const apiService = require('./apiService');
 
-window.addEventListener('DOMContentLoaded', () => {
-    const replaceText = (selector, text) => {
-      const element = document.getElementById(selector)
-      if (element) element.innerText = text
-    }
-  
-    for (const type of ['chrome', 'node', 'electron']) {
-      replaceText(`${type}-version`, process.versions[type])
-    }
-  })
-
 contextBridge.exposeInMainWorld('electronAPI', {
-  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
   socket: socket,
   screenInfo: () => ipcRenderer.invoke('init-position'),
+  petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
+  submitMessage: (type, message) => ipcRenderer.send('submit-message', type, message),
+  onReceiveMessage: (callback) => ipcRenderer.on('receive-message', (_event, message) => callback(message)),
+  onShow: (callback) => ipcRenderer.on('show', (_event) => callback()),
 })
 
 contextBridge.exposeInMainWorld('geminiAPI', {
@@ -41,3 +33,4 @@ contextBridge.exposeInMainWorld('geminiAPI', {
 ipcRenderer.on('petPosition', (event, newPosition) => {
   window.dispatchEvent(new CustomEvent('petPosition', { detail: newPosition }));
 });
+  
