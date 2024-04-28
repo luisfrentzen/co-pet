@@ -255,8 +255,6 @@ function playAnimation(duration) {
 pet.randomizeAction();
 playAnimation();
 
-const apiService = window.geminiAPI.apiService
-
 window.electronAPI.onReceiveMessage((message) => {
   stopTyping = true;
   i = 0;
