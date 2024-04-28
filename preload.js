@@ -22,7 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   screenInfo: () => ipcRenderer.invoke('init-position'),
   petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
   submitMessage: (type, message) => ipcRenderer.send('submit-message', type, message),
-  onReceiveMessage: (callback) => ipcRenderer.on('receive-message', (_event, message) => callback(message))
+  onReceiveMessage: (callback) => ipcRenderer.on('receive-message', (_event, message) => callback(message)),
+  onShow: (callback) => ipcRenderer.on('show', (_event) => callback()),
 })
 
 contextBridge.exposeInMainWorld('geminiAPI', {

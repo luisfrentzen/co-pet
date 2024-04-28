@@ -14,3 +14,7 @@ function submitOnEnter(event) {
 }
 
 document.getElementById("chatbox").addEventListener("keydown", submitOnEnter);
+
+window.electronAPI.onShow(() => {
+  chatbox.focus();
+})

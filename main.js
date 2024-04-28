@@ -195,6 +195,7 @@ app.whenReady().then(() => {
     if(chatboxInputWindow.isVisible()) {
       chatboxInputWindow.hide();
     } else {
+      chatboxInputWindow.webContents.send("show");
       chatboxInputWindow.show();
     }
   })
