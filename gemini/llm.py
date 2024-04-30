@@ -5,6 +5,12 @@ from google.generativeai.types import content_types
 from dotenv import load_dotenv
 from .prompts import SYSTEM_PET, SYSTEM_VISION, MODEL_AFFIRM
 
+# import sys
+# sys.path.append('../search')
+
+from search.searcher import Searcher
+from search.serper import Serper
+
 load_dotenv()
 
 def list_files(directory):
@@ -24,6 +30,9 @@ class GeminiLLM():
 
         self.chat_model = genai.GenerativeModel('gemini-pro')
         self.vision_model = genai.GenerativeModel('gemini-pro-vision')
+
+        self.search = Searcher()
+        self.serper = Serper()
 
         self.vision_prompt = SYSTEM_VISION
         self.system_prompt = SYSTEM_PET
@@ -93,8 +102,22 @@ class GeminiLLM():
         response = self.chat.send_message(prompt)
         self.pop_history()
         return response.text
-
     
+    def query_search(self, query:str, include_full_url:bool = False, searcher_kwargs = {}, serper_kwargs = {}):
+        response_serp = self.serper.get_answer(query=query, kwargs=serper_kwargs)
+
+        if response_serp is None:
+            response_search = self.search.search(query=query, include_full_url=include_full_url, kwargs=searcher_kwargs)
+            response_search = response_search['answer']
+            response = response_search
+        else:
+            response = "Answer: \n" + response_serp
+
+        self.append_history(query, response)
+        self.pop_history()
+
+        return response
+
     def append_history(self, user_query, model_response):
         c = content_types.to_content({"role": "user", "parts": user_query})
         self.chat.history.append(c)
@@ -103,32 +126,41 @@ class GeminiLLM():
 
 if __name__ == "__main__":
     gemini = GeminiLLM()
-    gemini.append_history("Hello, How are you?", "Amazing, always happy to help you, how can I help you?")
-    response = gemini.query("Which is one of the best place to visit in India during summer?")
-    print(response)
-    response = gemini.query("Tell me more about that place in 50 words")
-    print(response)
 
-    gemini.reset_history()
+    response = gemini.query_search("what time is it now in Indonesia?")
+    print(response)
+    print(gemini.chat.history)
 
-    response = gemini.query("I'd like to play some multiplayer online game, I heard a lot about league of legends or dota, what do you think?")
+    response = gemini.query("What's the best things to do at this time?")
     print(response)
-    response = gemini.query_with_image("D:\Visto\co-pet\sample-inputs\dota2.png", "What about this?")
-    print(response)
-    response = gemini.query("What's other games have similar genre?")
-    print(response)
+    print(gemini.chat.history)
 
-    gemini.reset_history()
+    # gemini.append_history("Hello, How are you?", "Amazing, always happy to help you, how can I help you?")
+    # response = gemini.query("Which is one of the best place to visit in India during summer?")
+    # print(response)
+    # response = gemini.query("Tell me more about that place in 50 words")
+    # print(response)
 
-    response = gemini.query("How do I make chicken noodle soup?")
-    print(response)
-    response = gemini.query_with_image("D:\Visto\co-pet\sample-inputs\dota2.png", "What about this?")
-    print(response)
-    response = gemini.query("What's other games have similar genre?")
-    print(response)
+    # gemini.reset_history()
 
-    gemini.reset_history()
+    # response = gemini.query("I'd like to play some multiplayer online game, I heard a lot about league of legends or dota, what do you think?")
+    # print(response)
+    # response = gemini.query_with_image("D:\Visto\co-pet\sample-inputs\dota2.png", "What about this?")
+    # print(response)
+    # response = gemini.query("What's other games have similar genre?")
+    # print(response)
 
-    response = gemini.query_directory("D:\Visto\co-pet")
-    print(response)
+    # gemini.reset_history()
+
+    # response = gemini.query("How do I make chicken noodle soup?")
+    # print(response)
+    # response = gemini.query_with_image("D:\Visto\co-pet\sample-inputs\dota2.png", "What about this?")
+    # print(response)
+    # response = gemini.query("What's other games have similar genre?")
+    # print(response)
+
+    # gemini.reset_history()
+
+    # response = gemini.query_directory("D:\Visto\co-pet")
+    # print(response)
     
