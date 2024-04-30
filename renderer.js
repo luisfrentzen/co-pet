@@ -35,7 +35,5 @@ function loop(timeStamp) {
   requestAnimationFrame(loop);
 };
 
-// const apiService = window.geminiAPI.apiService
-
 then = window.performance.now();
 requestAnimationFrame(loop);

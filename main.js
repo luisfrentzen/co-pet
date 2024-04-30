@@ -1,6 +1,14 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, screen, ipcMain, globalShortcut } = require("electron");
 const path = require("node:path");
+const {conversation , screenshot} = require('./apiService');
+const io = require('socket.io-client');
+
+const socket = io('http://localhost:5000');
+socket.on('directory', (response) => {
+  console.log('Received directory data:', response.data);
+  showMessage(response.data)
+});
 
 var petWindow;
 var chatboxInputWindow;
@@ -133,9 +141,22 @@ function createChatboxResponseWindow() {
 
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxInputWindow.setAlwaysOnTop(true, "screen");
-  // chatboxResponseWindow.webContents.openDevTools();
+  chatboxResponseWindow.webContents.openDevTools();
 
   return chatboxResponseWindow;
+}
+
+function showMessage(message){
+  chatboxResponseWindow.webContents.send("receive-message", message)
+  petWindow.webContents.send("receive-message", message)
+  
+  chatboxResponseWindow.setBounds({
+    width: 800,
+    height: 400,
+    x: petWindow.getPosition()[0] - 700,
+    y: petWindow.getPosition()[1] - 300
+  });
+  chatboxResponseWindow.show();
 }
 
 function handleSubmitMessage (event, type, message) {
@@ -143,18 +164,17 @@ function handleSubmitMessage (event, type, message) {
   const win = BrowserWindow.fromWebContents(webContents);
   
   if (type === "input") {
-    chatboxResponseWindow.show();
-
-    chatboxResponseWindow.setBounds({
-      width: 800,
-      height: 400,
-      x: petWindow.getPosition()[0] - 700,
-      y: petWindow.getPosition()[1] - 300
-    });
-    chatboxResponseWindow.webContents.send("receive-message", message)
-    petWindow.webContents.send("receive-message", message)
-
     win.hide();
+    conversation(message)
+    .then(
+      response => {
+        showMessage(response.data)
+      }
+    )
+    .catch(error => {
+      // Handle error
+      console.error('Error fetching conversation:', error);
+    });
   }
   else if (type === "response-size") {
     const width = Math.ceil(message.width); 

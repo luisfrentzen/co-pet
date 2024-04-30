@@ -7,27 +7,13 @@
  * https://www.electronjs.org/docs/latest/tutorial/sandboxF
  */
 const { contextBridge, ipcRenderer } = require('electron')
-const io = require('socket.io-client');
-
-const socket = io('http://localhost:5000');
-socket.on('directory', (data) => {
-  console.log('Received directory data:', data);
-  // Handle the received data here
-});
-
-const apiService = require('./apiService');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  socket: socket,
   screenInfo: () => ipcRenderer.invoke('init-position'),
   petStep: (dx, dy) => ipcRenderer.invoke('pet-step', dx, dy),
   submitMessage: (type, message) => ipcRenderer.send('submit-message', type, message),
   onReceiveMessage: (callback) => ipcRenderer.on('receive-message', (_event, message) => callback(message)),
   onShow: (callback) => ipcRenderer.on('show', (_event) => callback()),
-})
-
-contextBridge.exposeInMainWorld('geminiAPI', {
-  apiService: apiService
 })
 
 ipcRenderer.on('petPosition', (event, newPosition) => {
