@@ -1,5 +1,3 @@
-import threading
-import time
 from flask import Flask, request
 from flask_socketio import SocketIO
 from gemini.llm import GeminiLLM
@@ -13,7 +11,10 @@ gemini = GeminiLLM()
 @app.route("/conversation")
 def conversation():
     question = request.args.get('question')
-    response = gemini.query(question)
+    if question.startswith('/search'):
+        response = gemini.query_search(question)
+    else:
+        response = gemini.query(question)
     return response
 
 @app.route("/screenshot")

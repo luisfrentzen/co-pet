@@ -103,18 +103,36 @@ class GeminiLLM():
         self.pop_history()
         return response.text
     
-    def query_search(self, query:str, include_full_url:bool = False, searcher_kwargs = {}, serper_kwargs = {}):
+    def query_search(self, query:str, include_full_url:bool = False,    searcher_kwargs = {}, serper_kwargs = {}):
         response_serp = self.serper.get_answer(query=query, kwargs=serper_kwargs)
 
         if response_serp is None:
             response_search = self.search.search(query=query, include_full_url=include_full_url, kwargs=searcher_kwargs)
             response_search = response_search['answer']
             response = response_search
-        else:
-            response = "Answer: \n" + response_serp
 
-        self.append_history(query, response)
-        self.pop_history()
+            prompt = "Given user asked somebody with this query: " + query
+            prompt += "\n"
+            prompt += "And the user received answer: " + response
+            prompt += "\n"
+            prompt += "Consider the answer and give your own answer or reconstruct to a new sentence so that the answer feels friendly"
+
+            gemini_response = self.query(prompt)
+            response = response + "\n" + gemini_response
+            self.pop_history()
+            
+        else:
+            response = response_serp
+            prompt = "Given user web searched with this query: " + query
+            prompt += "\n"
+            prompt += "And the user received answer: " + response
+            prompt += "\n"
+            prompt += "Reconstruct to a new sentence so that the answer feels friendly"
+            response = self.query(prompt)
+            self.pop_history()
+
+        # self.append_history(query, response)
+        # self.pop_history()
 
         return response
 

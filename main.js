@@ -141,7 +141,7 @@ function createChatboxResponseWindow() {
 
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxInputWindow.setAlwaysOnTop(true, "screen");
-  chatboxResponseWindow.webContents.openDevTools();
+  // chatboxResponseWindow.webContents.openDevTools();
 
   return chatboxResponseWindow;
 }
