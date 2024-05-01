@@ -10,7 +10,7 @@ socketio = SocketIO(app)
 gemini = GeminiLLM()
 
 last_request_time = time.time()
-request_timeout = 10
+request_timeout = 60
 
 @app.route("/conversation")
 def conversation():
@@ -22,22 +22,18 @@ def conversation():
     arguments = " ".join(parts[1:])
     if command.startswith('/search'):
         response = gemini.query_search(arguments)
+    elif command.startswith('/screenshot'):
+        response = screenshot(arguments)['initial_response']
+        print(response)
     else:
         response = gemini.query(question)
     return response
 
-@app.route("/screenshot")
-def screenshot():
-    global last_request_time
-    last_request_time = time.time()
+def screenshot(query: str):
     im = pyautogui.screenshot()
     im.save(f"monitor.png")
-    width, height = im.size
-    response = gemini.query_with_image("monitor.png", "Describe the image")
-    return {'response': response, 'screen_size': {
-        'width': width,
-        'height': height
-    }}
+    response = gemini.query_with_image("monitor.png", f'You are a computer pet cat assistant named Leo. Your task is to chat and entertain the user while he dally with his computer. Act playful and friendly. Now act as if you are looking to the user\'s screen and answer this question: "{query}". You are the orange pixel cat, don\'t describe or comment on yourself.')
+    return response
 
 @app.route("/history")
 def history():
@@ -62,11 +58,9 @@ def background_screenshot_task():
     global last_request_time
     while True:
         if time.time() - last_request_time > request_timeout:
-            im = pyautogui.screenshot()
-            im.save(f"monitor.png")
-            response = gemini.query_with_image("monitor.png", "Describe the image")
-            last_request_time = time.time()
+            response = screenshot("You are a computer pet cat assistant named Leo. Your task is to chat and entertain the user while he dally with his computer. Act playful and friendly, Never reply with long paragraphs, reply short and concise. Now act as if you are looking to the user's screen and make a playful comment about it. You are the orange pixel cat, don't describe or comment on yourself.")
             socketio.emit('screenshot', {'data': response})
+            last_request_time = time.time()
             time.sleep(5)
         else:
             time.sleep(1)
