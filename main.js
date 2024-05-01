@@ -3,6 +3,7 @@ const { app, BrowserWindow, screen, ipcMain, globalShortcut } = require("electro
 const path = require("node:path");
 const { conversation, screenshot } = require('./apiService');
 const io = require('socket.io-client');
+const config = require("./config")
 
 const socket = io('http://127.0.0.1:5000');
 socket.on('directory', (response) => {
@@ -16,8 +17,8 @@ var petOrientation = 1;
 
 function getPetWindowSize() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const petWindowHeight = 272
-  const petWindowWidth = 272
+  const petWindowHeight = 272 * config.SCALE
+  const petWindowWidth = 272 * config.SCALE
   const petWindowSize = {
     width: petWindowWidth,
     height: petWindowHeight
@@ -98,7 +99,7 @@ function createPetWindow() {
   petWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   petWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   petWindow.setIgnoreMouseEvents(true);
-  // petWindow.webContents.openDevTools();
+  petWindow.webContents.openDevTools({mode: 'detach'});
 }
 
 function createChatboxInputWindow() {
@@ -126,8 +127,8 @@ function createChatboxInputWindow() {
 
 function createChatboxResponseWindow() {
   chatboxResponseWindow = new BrowserWindow({
-    width: 1000,
-    height: 600,
+    width: 1000 * config.SCALE,
+    height: 600 * config.SCALE,
     transparent: true,
     frame: false,
     skipTaskbar: true,
@@ -168,10 +169,10 @@ function showMessage(message) {
   chatboxResponseWindow.hide();
 
   chatboxResponseWindow.setBounds({
-    width: 800,
-    height: 400,
-    x: petWindow.getPosition()[0] - 700,
-    y: petWindow.getPosition()[1] - 300
+    width: 800 * config.SCALE,
+    height: 400 * config.SCALE,
+    x: petWindow.getPosition()[0] - (700 * config.SCALE),
+    y: petWindow.getPosition()[1] - (300 * config.SCALE)
   });
   chatboxResponseWindow.show();
 }
@@ -201,7 +202,7 @@ function handleSubmitMessage(event, type, message) {
     if (petOrientation == 1) {
       responsePositionX = Math.max(0,
         Math.min(
-          petWindow.getPosition()[0] + getPetWindowSize().width - 50,
+          petWindow.getPosition()[0] + getPetWindowSize().width - (50 * config.SCALE),
           screen.getPrimaryDisplay().workAreaSize.width - width),
       );
     }
@@ -213,7 +214,7 @@ function handleSubmitMessage(event, type, message) {
       );  
     }
     
-    const responsePositionY = petWindow.getPosition()[1] - height + 50;
+    const responsePositionY = petWindow.getPosition()[1] - height + (50 * config.SCALE);
     chatboxResponseWindow.setBounds({
       width: width,
       height: height,
