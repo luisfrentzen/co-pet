@@ -81,7 +81,11 @@ class Pet {
     }
 
     if (this.action === this.K_ACTION_WALK) {
-      window.electronAPI.petStep(this.speed * this.orientation, 0);
+      window.electronAPI.petStep(this.speed * this.orientation, 0).then(response => {
+        if (response.type === "set-orientation") {
+          this.orientation = response.value
+        }
+      })
     }
     this.actionTick -= 1;
 

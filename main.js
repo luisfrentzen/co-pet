@@ -66,6 +66,21 @@ function petStepHandler(event, dx, dy) {
   });
 
   webContents.send('petPosition', { x: newX, y: newY });
+
+  if (petWindow.getPosition()[0] + getPetWindowSize().width > screen.getPrimaryDisplay().workAreaSize.width) {
+    return {
+      type: "set-orientation",
+      value: -1
+    }
+  }
+  else if(petWindow.getPosition()[0] < 0) {
+    return {
+      type: "set-orientation",
+      value: 1
+    }
+  }
+  
+  return {}
 }
 
 function initPositionHandler(event) {
