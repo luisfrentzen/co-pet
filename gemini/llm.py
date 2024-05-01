@@ -69,12 +69,30 @@ class GeminiLLM():
             prompt = self.vision_prompt
         
         img = PIL.Image.open(image)
-
-        described = self.vision_model.generate_content(["Describe what's on the image in detail", img])
+        safe = [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_NONE",
+            },
+        ]
+        
+        described = self.vision_model.generate_content(["Describe what's on the image in detail", img], safety_settings=safe)
         described.resolve()
         additional_response = self.query("Given a description:\n" + described.text + "\nIs the description has anything related to what's have been discussed by us? If there's then answer with \"Yes\" as the first word, otherwise \"No\" as the first word" )
 
-        response = self.vision_model.generate_content([prompt, img])
+        response = self.vision_model.generate_content([prompt, img], safety_settings=safe)
         response.resolve()
 
         c = content_types.to_content({"role": "user", "parts": prompt})
