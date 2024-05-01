@@ -149,11 +149,11 @@ function createChatboxResponseWindow() {
     width: 1000 * config.SCALE,
     height: 600 * config.SCALE,
     transparent: true,
-    frame: false,
+    frame: true,
     skipTaskbar: true,
     useContentSize: true,
     resizable: true,
-    show: false,
+    show: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -164,7 +164,7 @@ function createChatboxResponseWindow() {
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxResponseWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   chatboxResponseWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  // chatboxResponseWindow.webContents.openDevTools();
+  chatboxResponseWindow.webContents.openDevTools({mode: 'detach'});
 
   return chatboxResponseWindow;
 }

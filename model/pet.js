@@ -35,11 +35,12 @@ class Pet {
         this.action = this.K_ACTION_WALK;
         this.actionTick = randomIntFromInterval(16, 64);
 
-        if (orientation === null) {
-          this.orientation = Math.random() < 0.5 ? -1 : 1;
-        } else {
-          this.orientation = orientation
-        }
+      if (orientation === null) {
+        this.setOrientation(Math.random() < 0.5 ? -1 : 1)
+      } else {
+        this.setOrientation(orientation)
+      }
+      
       },
       idle: () => {
         this.action = this.K_ACTION_IDLE;
@@ -49,9 +50,9 @@ class Pet {
         this.action = this.K_ACTION_STAND;
         this.actionTick = randomIntFromInterval(8, 32);
       },
-      respond: () => {
+      respond: (tick) => {
         this.action = this.K_ACTION_RESPOND;
-        this.actionTick = 32
+        this.actionTick = tick
       }
     };
 
@@ -75,15 +76,24 @@ class Pet {
     return sprites;
   }
 
+  standby() {
+    this.isResponseActive = true
+    this.actions[this.K_ACTION_RESPOND](64)
+  }
+
+  setOrientation(orientation) {
+    this.orientation = orientation
+  }
+
+  resetActions() {
+    this.isResponseActive = false
+    this.actionTick = 0
+  }
+
   update() {
     this.tick += 1;
 
     // do action
-
-    if (this.isResponseActive) {
-      this.actions[this.K_ACTION_RESPOND]()
-    }
-
     if (this.action === this.K_ACTION_WALK) {
       window.electronAPI.petStep(this.speed * this.orientation, 0).then(response => {
         if (response.type === "set-orientation") {
