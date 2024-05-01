@@ -52,22 +52,28 @@ class Pet {
     this.actions = {
       walk: () => {
         this.action = this.K_ACTION_WALK;
-        this.actionTick += randomIntFromInterval(16, 64);
+        this.actionTick = randomIntFromInterval(16, 64);
 
         this.orientation = Math.random() < 0.5 ? -1 : 1;
+
+        window.electronAPI.petInfo({
+          orientation: this.orientation
+        });
       },
       idle: () => {
         this.action = this.K_ACTION_IDLE;
-        this.actionTick += randomIntFromInterval(8, 32);
+        this.actionTick = randomIntFromInterval(8, 32);
       },
       stand: () => {
         this.action = this.K_ACTION_STAND;
-        this.actionTick += randomIntFromInterval(8, 32);
+        this.actionTick = randomIntFromInterval(8, 32);
       },
     };
 
     this.sprites = {};
     this.load();
+
+    this.isResponseActive = false;
   }
 
   load() {
@@ -87,13 +93,17 @@ class Pet {
 
     // do action
 
+    if (this.isResponseActive) {
+      this.actions[this.K_ACTION_STAND]()
+    }
+
     if (this.action === this.K_ACTION_WALK) {
       window.electronAPI.petStep(this.speed * this.orientation, 0);
     }
     this.actionTick -= 1;
 
     // end action
-    if (this.actionTick == 0) {
+    if (this.actionTick <= 0) {
       let act = randomAction([
         this.K_ACTION_WALK,
         this.K_ACTION_WALK,
@@ -116,7 +126,6 @@ class Pet {
     let drawY = 0;
 
     fr = this.sprites[this.action][this.tick % this.SPRITE_LENGTH];
-    console.log(this.tick, this.action, fr, this.orientation);
 
     if (this.orientation == -1) {
       ctx.scale(-1, 1);

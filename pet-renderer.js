@@ -37,3 +37,13 @@ function loop(timeStamp) {
 
 then = window.performance.now();
 requestAnimationFrame(loop);
+
+window.electronAPI.onReceiveMessage((message) => {
+  if (message.text == "response-open") {
+    pet.isResponseActive = true;
+  }
+  else if (message.text == "response-close") {
+    pet.actionTick = 0;
+    pet.isResponseActive = false;
+  }
+})
