@@ -31,11 +31,15 @@ class Pet {
     this.tick = 0;
 
     this.actions = {
-      walk: () => {
+      walk: (orientation=null) => {
         this.action = this.K_ACTION_WALK;
         this.actionTick = randomIntFromInterval(16, 64);
 
-        this.orientation = Math.random() < 0.5 ? -1 : 1;
+        if (orientation === null) {
+          this.orientation = Math.random() < 0.5 ? -1 : 1;
+        } else {
+          this.orientation = orientation
+        }
       },
       idle: () => {
         this.action = this.K_ACTION_IDLE;
@@ -83,7 +87,7 @@ class Pet {
     if (this.action === this.K_ACTION_WALK) {
       window.electronAPI.petStep(this.speed * this.orientation, 0).then(response => {
         if (response.type === "set-orientation") {
-          this.orientation = response.value
+          this.actions[this.K_ACTION_WALK](response.value)
         }
       })
     }
