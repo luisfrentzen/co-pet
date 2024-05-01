@@ -4,7 +4,7 @@ const path = require("node:path");
 const { conversation, screenshot } = require('./apiService');
 const io = require('socket.io-client');
 
-const socket = io('http://localhost:5000');
+const socket = io('http://127.0.0.1:5000');
 socket.on('directory', (response) => {
   showMessage(response.data)
 });
@@ -95,7 +95,8 @@ function createPetWindow() {
   });
 
   petWindow.loadFile("pet.html");
-  petWindow.setAlwaysOnTop(true, "screen");
+  petWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  petWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   petWindow.setIgnoreMouseEvents(true);
   // petWindow.webContents.openDevTools();
 }
@@ -118,7 +119,8 @@ function createChatboxInputWindow() {
   });
 
   chatboxInputWindow.loadFile("chatbox-input.html");
-  chatboxInputWindow.setAlwaysOnTop(true, "screen");
+  chatboxInputWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  chatboxInputWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   // chatboxInputWindow.webContents.openDevTools();
 }
 
@@ -140,7 +142,8 @@ function createChatboxResponseWindow() {
   });
 
   chatboxResponseWindow.loadFile("chatbox-response.html");
-  chatboxResponseWindow.setAlwaysOnTop(true, "screen");
+  chatboxResponseWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  chatboxResponseWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   // chatboxResponseWindow.webContents.openDevTools();
 
   return chatboxResponseWindow;

@@ -2,7 +2,6 @@ from flask import Flask, request
 from flask_socketio import SocketIO
 from gemini.llm import GeminiLLM
 import pyautogui
-from win32api import GetMonitorInfo, EnumDisplayMonitors
 
 app = Flask(__name__)
 socketio = SocketIO(app)
