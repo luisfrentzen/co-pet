@@ -55,10 +55,6 @@ class Pet {
         this.actionTick = randomIntFromInterval(16, 64);
 
         this.orientation = Math.random() < 0.5 ? -1 : 1;
-
-        window.electronAPI.petInfo({
-          orientation: this.orientation
-        });
       },
       idle: () => {
         this.action = this.K_ACTION_IDLE;

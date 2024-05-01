@@ -41,6 +41,7 @@ requestAnimationFrame(loop);
 window.electronAPI.onReceiveMessage((message) => {
   if (message.text == "response-open") {
     pet.isResponseActive = true;
+    pet.orientation = message.orientation
   }
   else if (message.text == "response-close") {
     pet.actionTick = 0;

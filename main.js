@@ -6,7 +6,6 @@ const io = require('socket.io-client');
 
 const socket = io('http://localhost:5000');
 socket.on('directory', (response) => {
-  console.log('Received directory data:', response.data);
   showMessage(response.data)
 });
 
@@ -148,12 +147,22 @@ function createChatboxResponseWindow() {
 }
 
 function showMessage(message) {
-  messageObject = {
+  if (petWindow.getPosition()[0] + getPetWindowSize().width / 2 < screen.getPrimaryDisplay().workAreaSize.width / 2) {
+    petOrientation = 1
+  } else {
+    petOrientation = -1
+  }
+
+  chatboxResponseWindow.webContents.send("message", {
     text: message,
     orientation: petOrientation
-  }
-  chatboxResponseWindow.webContents.send("message", messageObject)
-  petWindow.webContents.send("message", { text: "response-open" })
+  })
+  petWindow.webContents.send("message", {
+    text: "response-open",
+    orientation: petOrientation
+  })
+
+  chatboxResponseWindow.hide();
 
   chatboxResponseWindow.setBounds({
     width: 800,
@@ -218,10 +227,6 @@ function handleSubmitMessage(event, type, message) {
 
 }
 
-function petInfoHandler(event, data) {
-  petOrientation = data.orientation;
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -229,8 +234,6 @@ app.whenReady().then(() => {
   ipcMain.on('submit-message', handleSubmitMessage);
   ipcMain.handle('pet-step', petStepHandler);
   ipcMain.handle('init-position', initPositionHandler);
-  ipcMain.handle('pet-info', petInfoHandler);
-
 
   createPetWindow();
   createChatboxInputWindow();
