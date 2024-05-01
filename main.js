@@ -10,6 +10,10 @@ socket.on('directory', (response) => {
   showMessage(response.data)
 });
 
+socket.on('screenshot', (response) => {
+  showMessage(response.data.initial_response)
+});
+
 var petWindow;
 var chatboxInputWindow;
 var chatboxResponseWindow;
