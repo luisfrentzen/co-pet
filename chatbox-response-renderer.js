@@ -79,6 +79,8 @@ function drawResponseBubble(borderWidth, borderHeight, orientation) {
   ctx.fillRect(cornerWidth, cornerHeight, borderWidth , borderHeight);
 }
 
+var id = null
+
 function drawResponse(text, orientation) {
   var borderHeight = 0
   var borderWidth = 0 
@@ -131,7 +133,8 @@ function drawResponse(text, orientation) {
     height: bubbleHeight 
   })
 
-  window.setTimeout(() => {
+  if (id) { window.clearTimeout(id) }
+  id = window.setTimeout(() => {
     window.electronAPI.submitMessage("response-close", null)
   }, 5000)
 }

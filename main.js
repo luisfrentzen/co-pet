@@ -141,7 +141,7 @@ function createChatboxInputWindow() {
   chatboxInputWindow.loadFile("chatbox-input.html");
   chatboxInputWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   chatboxInputWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  // chatboxInputWindow.webContents.openDevTools();
+  // chatboxInputWindow.webContents.openDevTools({mode: "detach"});
 }
 
 function createChatboxResponseWindow() {
@@ -164,7 +164,7 @@ function createChatboxResponseWindow() {
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxResponseWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   chatboxResponseWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  chatboxResponseWindow.webContents.openDevTools({mode: 'detach'});
+  // chatboxResponseWindow.webContents.openDevTools({mode: 'detach'});
 
   return chatboxResponseWindow;
 }
@@ -196,15 +196,25 @@ function showMessage(message) {
   chatboxResponseWindow.show();
 }
 
+var processingMessage = false
+
 function handleSubmitMessage(event, type, message) {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
 
   if (type === "input") {
+
+    processingMessage = true
+    petWindow.webContents.send("message", {
+      text: "processing-message",
+      orientation: petOrientation
+    })
+
     win.hide();
     conversation(message)
     .then(
       response => {
+        processingMessage = false
         showMessage(response.data)
       }
     )
@@ -263,6 +273,8 @@ app.whenReady().then(() => {
   createChatboxResponseWindow();
 
   globalShortcut.register('CommandOrControl+L', () => {
+    if (processingMessage) return
+
     if (chatboxInputWindow.isVisible()) {
       chatboxInputWindow.hide();
     } else {
