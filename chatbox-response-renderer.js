@@ -31,7 +31,7 @@ function getWrappedLines(ctx, text, maxWidth) {
 
 ctx.textAlign = "left";
 ctx.textBaseline = "top";
-ctx.font = '16px Monospace';
+ctx.font = '14px Monospace';
 var lineheight = 24;
 
 function drawResponseBubble(borderWidth, borderHeight, orientation) {  
@@ -85,6 +85,8 @@ function drawResponse(text, orientation) {
   var borderHeight = 0
   var borderWidth = 0 
 
+  text = text.replace("\t", "").replace("\n", "").trim()
+
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   var lines = text.split("\n")
@@ -104,7 +106,7 @@ function drawResponse(text, orientation) {
 
   const wrappedLines = lines.flatMap(line => getWrappedLines(ctx, line, borderWidth))
 
-  borderHeight = lineheight * wrappedLines.length - 8
+  borderHeight = lineheight * (wrappedLines.length + 1) - 10
 
   var maxLineWidth = 0
 
@@ -122,7 +124,7 @@ function drawResponse(text, orientation) {
 
   ctx.fillStyle = "black";
   for (var i = 0; i < wrappedLines.length; i++) {
-    ctx.fillText(wrappedLines[i], cornerWidth, cornerHeight + ( i * lineheight));
+    ctx.fillText(wrappedLines[i], cornerWidth, cornerHeight + ((i + 0.5) * lineheight));
   }
 
   const bubbleWidth = 2 * cornerWidth + borderWidth
@@ -136,7 +138,7 @@ function drawResponse(text, orientation) {
   if (id) { window.clearTimeout(id) }
   id = window.setTimeout(() => {
     window.electronAPI.submitMessage("response-close", null)
-  }, 5000)
+  }, 30000)
 }
 
 
