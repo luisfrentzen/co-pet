@@ -1,23 +1,3 @@
-// function handlePetPosition(x, y) {
-//   pet.currentX = x;
-//   pet.currentY = y;
-// }
-
-// window.addEventListener("petPosition", function (event) {
-//   const newPosition = event.detail;
-//   handlePetPosition(newPosition.x, newPosition.y);
-// });
-
-// function handleScreenInfo(width, height) {
-//   pet.screenWidth = width;
-//   pet.screenHeight = height;
-// }
-
-// window.addEventListener("screenInfo", function (event) {
-//   const newPosition = event.detail;
-//   handlePetPosition(newPosition.screenWidth, newPosition.screenHeight);
-// });
-
 function randomIntFromInterval(min, max) {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -38,6 +18,7 @@ class Pet {
     this.K_ACTION_IDLE = "idle";
     this.K_ACTION_STAND = "stand";
     this.K_ACTION_WALK = "walk";
+    this.K_ACTION_RESPOND = "respond"
 
     this.SPRITE_LENGTH = 8;
 
@@ -64,6 +45,10 @@ class Pet {
         this.action = this.K_ACTION_STAND;
         this.actionTick = randomIntFromInterval(8, 32);
       },
+      respond: () => {
+        this.action = this.K_ACTION_RESPOND;
+        this.actionTick = 32
+      }
     };
 
     this.sprites = {};
@@ -76,6 +61,8 @@ class Pet {
     this.sprites[this.K_ACTION_WALK] = this.loadSprite("texture-pet-walk");
     this.sprites[this.K_ACTION_STAND] = this.loadSprite("texture-pet-stand");
     this.sprites[this.K_ACTION_IDLE] = this.loadSprite("texture-pet-idle");
+    this.sprites[this.K_ACTION_RESPOND] = this.loadSprite("texture-pet-responding");
+
   }
 
   loadSprite(cls) {
@@ -90,7 +77,7 @@ class Pet {
     // do action
 
     if (this.isResponseActive) {
-      this.actions[this.K_ACTION_STAND]()
+      this.actions[this.K_ACTION_RESPOND]()
     }
 
     if (this.action === this.K_ACTION_WALK) {
@@ -131,73 +118,4 @@ class Pet {
 
     ctx.drawImage(fr, drawX, drawY, this.canvas.width, this.canvas.height);
   }
-
-  //   getScreenInfo(){
-  //     const t = this;
-  //     const {screenWidth, screenHeight} = window.electronAPI.screenInfo()
-  //     t.screenWidth = screenWidth
-  //     t.screenHeight = screenHeight
-  //   }
-
-  //   async walkToPosition(x, y) {
-  //     this.action = "walk";
-  //     const dx = x - this.currentX;
-  //     const dy = y - this.currentY;
-  //     const distance = Math.sqrt(dx * dx + dy * dy);
-  //     const stepCount = distance / 20;
-
-  //     const stepX = dx / stepCount;
-  //     const stepY = dy / stepCount;
-
-  //     this.walkDx = Math.round(stepX);
-  //     this.walkDy = Math.round(stepY);
-
-  //     this.mirrorHorizontal = this.walkDx < 0;
-
-  //     this.currentFrame = 1;
-  //     this.lastSpriteFrameNumber = 8;
-
-  //     return new Promise((resolve) => {
-  //       setTimeout(() => {
-  //         resolve();
-  //       }, (stepCount * 1000) / 8);
-  //     });
-  //   }
-
-  //   async screenshot() {
-  //     try {
-  //       const data = await apiService.screenshot();
-  //       const responseWithCoordinate = JSON.parse(
-  //         data.data.response.initial_response
-  //       );
-  //       console.log("Data:", data);
-  //       const { x, y } = this.calculateCoordinateByScreenRatio(
-  //         responseWithCoordinate.x,
-  //         responseWithCoordinate.y,
-  //         data.data.screen_size.width,
-  //         data.data.screen_size.height
-  //       );
-  //       console.log(x, y);
-  //       await this.walkToPosition(x, y);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   }
-
-    //   calculateCoordinateByScreenRatio(x, y, screenshotWidth, screenshotHeight) {
-    //     let widthScalingFactor = this.screenWidth / screenshotWidth;
-    //     let heightScalingFactor = this.screenHeight / screenshotHeight;
-    //     let convertedX = x * widthScalingFactor;
-    //     let convertedY = y * heightScalingFactor;
-    //     return {
-    //       x:
-    //         convertedX >= 0
-    //           ? convertedX - this.canvas.width / 2
-    //           : convertedX + this.canvas.width / 2,
-    //       y:
-    //         convertedY >= 0
-    //           ? convertedY - this.canvas.height / 2
-    //           : convertedY + this.canvas.height / 2,
-    //     };
-    //   }
 }
