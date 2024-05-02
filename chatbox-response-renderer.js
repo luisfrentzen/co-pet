@@ -5,9 +5,10 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
-const image = document.getElementById("dialog");
+const image = document.getElementById("dialog-mini");
 
-const cornerSize = 35
+const cornerWidth = Math.ceil(60 * 0.5)
+const cornerHeight = Math.ceil(30 * 0.5)
 
 function getWrappedLines(ctx, text, maxWidth) {
   var words = text.split(" ");
@@ -30,57 +31,61 @@ function getWrappedLines(ctx, text, maxWidth) {
 
 ctx.textAlign = "left";
 ctx.textBaseline = "top";
-ctx.font = '16px Consolas';
+ctx.font = '14px Monospace';
 var lineheight = 24;
 
 function drawResponseBubble(borderWidth, borderHeight, orientation) {  
   // top left corner
-  ctx.drawImage(image, 2, 2, 4, 4, 0, 0, cornerSize, cornerSize);
+  ctx.drawImage(image, 0, 0, 6, 3, 0, 0, cornerWidth, cornerHeight);
 
   // left border
-  ctx.drawImage(image, 2, 5, 4, 4, 0, cornerSize, cornerSize, borderHeight);
+  ctx.drawImage(image, 0, 3, 6, 3, 0, cornerHeight, cornerWidth, borderHeight);
 
   // bottom border
-  ctx.drawImage(image, 7, 18, 4, 4, cornerSize, borderHeight + cornerSize, borderWidth, cornerSize);
+  ctx.drawImage(image, 6, 6, 6, 6, cornerWidth, borderHeight + cornerHeight, borderWidth , cornerHeight * 2);
 
   // bottom left corner
   if (orientation == -1) {
-    ctx.drawImage(image, 2, 18, 4, 4, 0, borderHeight + cornerSize, cornerSize, cornerSize);
+    ctx.drawImage(image, 0, 6, 6, 6, 0, borderHeight + cornerHeight, cornerWidth, cornerHeight * 2);
   }
   else {
     ctx.save();
     ctx.scale(-1, 1);
-    ctx.drawImage(image, 15, 15, 7, 9, 0, borderHeight + cornerSize - (cornerSize * 3/4), -cornerSize * 7/4, cornerSize * 9/4);
+    ctx.drawImage(image, 12, 6, 6, 6, 0, borderHeight + cornerHeight, -cornerWidth, cornerHeight * 2);
     ctx.restore();
   }
 
   // top border
-  ctx.drawImage(image, 5, 2, 4, 4, cornerSize, 0, borderWidth, cornerSize);
+  ctx.drawImage(image, 6, 0, 6, 3, cornerWidth, 0, borderWidth , cornerHeight);
 
   // top right corner
-  ctx.drawImage(image, 18, 2, 4, 4, cornerSize + borderWidth, 0, cornerSize, cornerSize);
+  ctx.drawImage(image, 12, 0, 6, 3, cornerWidth + borderWidth , 0, cornerWidth, cornerHeight);
 
   // right border
-  ctx.drawImage(image, 18, 5, 4, 4, cornerSize + borderWidth, cornerSize, cornerSize, borderHeight);
+  ctx.drawImage(image, 12, 3, 6, 3, cornerWidth + borderWidth , cornerHeight, cornerWidth, borderHeight);
 
   // right bottom corner
   if (orientation == -1) {
-    ctx.drawImage(image, 15, 15, 9, 9, cornerSize + borderWidth - (cornerSize * 3/4), cornerSize + borderHeight - (cornerSize * 3/4), cornerSize * 9/4, cornerSize * 9/4);
+    ctx.drawImage(image, 12, 6, 6, 6, cornerWidth + borderWidth , cornerHeight + borderHeight, cornerWidth, cornerHeight * 2);
   }
   else {
     ctx.save();
     ctx.scale(-1, 1);
-    ctx.drawImage(image, 2, 18, 4, 4, (cornerSize + borderWidth) * -1, cornerSize + borderHeight, -cornerSize, cornerSize);
+    ctx.drawImage(image, 0, 6, 6, 6, (cornerWidth + borderWidth ) * -1, cornerHeight + borderHeight, -cornerWidth, cornerHeight * 2);
     ctx.restore();
   }
 
   ctx.fillStyle = "white";
-  ctx.fillRect(cornerSize, cornerSize, cornerSize + borderWidth - (cornerSize * 3/4), cornerSize + borderHeight - (cornerSize * 3/4));
+  ctx.fillRect(cornerWidth, cornerHeight, borderWidth , borderHeight);
 }
+
+var id = null
 
 function drawResponse(text, orientation) {
   var borderHeight = 0
   var borderWidth = 0 
+
+  text = text.replace("\t", "").replace("\n", "").trim()
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -101,7 +106,7 @@ function drawResponse(text, orientation) {
 
   const wrappedLines = lines.flatMap(line => getWrappedLines(ctx, line, borderWidth))
 
-  borderHeight = lineheight * wrappedLines.length - 8
+  borderHeight = lineheight * (wrappedLines.length + 1) - 10
 
   var maxLineWidth = 0
 
@@ -113,22 +118,27 @@ function drawResponse(text, orientation) {
       }
   })
 
-  borderWidth = maxLineWidth
+  borderWidth = parseInt(maxLineWidth)
 
   drawResponseBubble(borderWidth, borderHeight, orientation)
 
   ctx.fillStyle = "black";
   for (var i = 0; i < wrappedLines.length; i++) {
-    ctx.fillText(wrappedLines[i], cornerSize, cornerSize + (i*lineheight));
+    ctx.fillText(wrappedLines[i], cornerWidth, cornerHeight + ((i + 0.5) * lineheight));
   }
 
-  const bubbleWidth = cornerSize + borderWidth - (cornerSize * 3/4) + (cornerSize * 9/4)
-  const bubbleHeight = cornerSize + borderHeight - (cornerSize * 3/4) + (cornerSize * 9/4)
+  const bubbleWidth = 2 * cornerWidth + borderWidth
+  const bubbleHeight = 6 * cornerHeight + borderHeight
 
   window.electronAPI.submitMessage("response-size", {
     width: bubbleWidth,
     height: bubbleHeight 
   })
+
+  if (id) { window.clearTimeout(id) }
+  id = window.setTimeout(() => {
+    window.electronAPI.submitMessage("response-close", null)
+  }, 30000)
 }
 
 

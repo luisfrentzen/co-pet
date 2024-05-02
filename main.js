@@ -66,6 +66,21 @@ function petStepHandler(event, dx, dy) {
   });
 
   webContents.send('petPosition', { x: newX, y: newY });
+
+  if (petWindow.getPosition()[0] + getPetWindowSize().width > screen.getPrimaryDisplay().workAreaSize.width) {
+    return {
+      type: "set-orientation",
+      value: -1
+    }
+  }
+  else if(petWindow.getPosition()[0] < 0) {
+    return {
+      type: "set-orientation",
+      value: 1
+    }
+  }
+  
+  return {}
 }
 
 function initPositionHandler(event) {
@@ -126,7 +141,7 @@ function createChatboxInputWindow() {
   chatboxInputWindow.loadFile("chatbox-input.html");
   chatboxInputWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   chatboxInputWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  // chatboxInputWindow.webContents.openDevTools();
+  // chatboxInputWindow.webContents.openDevTools({mode: "detach"});
 }
 
 function createChatboxResponseWindow() {
@@ -134,11 +149,11 @@ function createChatboxResponseWindow() {
     width: 1000 * config.SCALE,
     height: 600 * config.SCALE,
     transparent: true,
-    frame: false,
+    frame: true,
     skipTaskbar: true,
     useContentSize: true,
     resizable: true,
-    show: false,
+    show: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -149,7 +164,7 @@ function createChatboxResponseWindow() {
   chatboxResponseWindow.loadFile("chatbox-response.html");
   chatboxResponseWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   chatboxResponseWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  // chatboxResponseWindow.webContents.openDevTools();
+  // chatboxResponseWindow.webContents.openDevTools({mode: 'detach'});
 
   return chatboxResponseWindow;
 }
@@ -181,15 +196,25 @@ function showMessage(message) {
   chatboxResponseWindow.show();
 }
 
+var processingMessage = false
+
 function handleSubmitMessage(event, type, message) {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
 
   if (type === "input") {
+
+    processingMessage = true
+    petWindow.webContents.send("message", {
+      text: "processing-message",
+      orientation: petOrientation
+    })
+
     win.hide();
     conversation(message)
     .then(
       response => {
+        processingMessage = false
         showMessage(response.data)
       }
     )
@@ -248,6 +273,8 @@ app.whenReady().then(() => {
   createChatboxResponseWindow();
 
   globalShortcut.register('CommandOrControl+L', () => {
+    if (processingMessage) return
+
     if (chatboxInputWindow.isVisible()) {
       chatboxInputWindow.hide();
     } else {

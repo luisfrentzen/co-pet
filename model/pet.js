@@ -19,6 +19,7 @@ class Pet {
     this.K_ACTION_STAND = "stand";
     this.K_ACTION_WALK = "walk";
     this.K_ACTION_RESPOND = "respond"
+    this.K_ACTION_PROCESS = "process"
 
     this.SPRITE_LENGTH = 8;
 
@@ -31,11 +32,16 @@ class Pet {
     this.tick = 0;
 
     this.actions = {
-      walk: () => {
+      walk: (orientation=null) => {
         this.action = this.K_ACTION_WALK;
         this.actionTick = randomIntFromInterval(16, 64);
 
-        this.orientation = Math.random() < 0.5 ? -1 : 1;
+      if (orientation === null) {
+        this.setOrientation(Math.random() < 0.5 ? -1 : 1)
+      } else {
+        this.setOrientation(orientation)
+      }
+
       },
       idle: () => {
         this.action = this.K_ACTION_IDLE;
@@ -45,9 +51,13 @@ class Pet {
         this.action = this.K_ACTION_STAND;
         this.actionTick = randomIntFromInterval(8, 32);
       },
-      respond: () => {
+      respond: (tick) => {
         this.action = this.K_ACTION_RESPOND;
-        this.actionTick = 32
+        this.actionTick = tick
+      },
+      process: (tick) => {
+        this.action = this.K_ACTION_PROCESS;
+        this.actionTick = tick
       }
     };
 
@@ -55,6 +65,7 @@ class Pet {
     this.load();
 
     this.isResponseActive = false;
+    this.freeze = false;
   }
 
   load() {
@@ -62,7 +73,7 @@ class Pet {
     this.sprites[this.K_ACTION_STAND] = this.loadSprite("texture-pet-stand");
     this.sprites[this.K_ACTION_IDLE] = this.loadSprite("texture-pet-idle");
     this.sprites[this.K_ACTION_RESPOND] = this.loadSprite("texture-pet-responding");
-
+    this.sprites[this.K_ACTION_PROCESS] = this.loadSprite("texture-pet-processing");
   }
 
   loadSprite(cls) {
@@ -71,19 +82,44 @@ class Pet {
     return sprites;
   }
 
+  standby(tick) {
+    this.isResponseActive = true
+    this.actions[this.K_ACTION_RESPOND](tick)
+  }
+
+  process(tick) {
+    this.actions[this.K_ACTION_PROCESS](tick)
+  }
+
+  setOrientation(orientation) {
+    this.orientation = orientation
+  }
+
+  resetActions() {
+    this.isResponseActive = false
+    this.actionTick = 0
+  }
+
+  setFreeze(isFreeze) {
+    this.freeze = isFreeze
+  }
+
   update() {
     this.tick += 1;
 
     // do action
-
-    if (this.isResponseActive) {
-      this.actions[this.K_ACTION_RESPOND]()
-    }
-
     if (this.action === this.K_ACTION_WALK) {
-      window.electronAPI.petStep(this.speed * this.orientation, 0);
+      window.electronAPI.petStep(this.speed * this.orientation, 0).then(response => {
+        if (response.type === "set-orientation") {
+          this.actions[this.K_ACTION_WALK](response.value)
+        }
+      })
     }
-    this.actionTick -= 1;
+
+    if (!this.freeze) { 
+      // console.log("pet is ticking")
+      this.actionTick -= 1; 
+    }
 
     // end action
     if (this.actionTick <= 0) {
