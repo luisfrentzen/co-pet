@@ -5,4 +5,4 @@ Windows Registry Editor Version 5.00
 "icon"="E:\\Project\\Gemini Hackathon\\co-pet\\icon.ico"
 
 [HKEY_LOCAL_MACHINE\Software\Classes\Directory\shell\coPet\command]
-@="cmd.exe /k python \"E:\\Project\\Gemini Hackathon\\co-pet\\context_script.py\" --directory \"%V\" && pause"
+@="cmd.exe /c pythonw \"E:\\Project\\Gemini Hackathon\\co-pet\\context_script.py\" --directory \"%V\""

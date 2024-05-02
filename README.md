@@ -18,6 +18,22 @@ npm install
 ```
 Make sure that both installation processes are completed successfully.
 
+## Windows: Setup Registry for Explorer Context Menu
+
+Edit the registry file, fill the `path_to_project` with the absolute path of the project folder
+```
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\Software\Classes\Directory\shell\coPet]
+"MUIVerb"="Co-pet read Dir"
+"icon"="[path_to_project]\\icon.ico"
+
+[HKEY_LOCAL_MACHINE\Software\Classes\Directory\shell\coPet\command]
+@="cmd.exe /c pythonw \"[path_to_project]\\context_script.py\" --directory \"%V\""
+```
+
+Double click the `.reg` file
+
 ## Starting Leo
 
 Copy and rename `.envexample` to `.env` and fill out all the API key variables.
@@ -62,6 +78,12 @@ if you want Leo to search for something for you on the internet, add `/search` i
 ```
 
 <img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/f38ab648-abd0-4ff1-a451-a82f8809fcdd">
+
+If you want Leo to explain the directory in your pc. Example:
+```
+right click on the folder
+click on Co-pet read dir menu
+```
 
 ## Future Plans
 
