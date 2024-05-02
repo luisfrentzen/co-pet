@@ -84,6 +84,8 @@ If you want Leo to explain the directory in your pc. Example:
 right click on the folder
 click on Co-pet read dir menu
 ```
+![dir1](https://github.com/luisfrentzen/co-pet/assets/62512030/f8d9dda9-dddd-43ee-ac27-d35ea807b7b0)
+![dir2](https://github.com/luisfrentzen/co-pet/assets/62512030/a7e579d1-7aa5-4f73-89fa-4e181cf4c711)
 
 ## Future Plans
 
