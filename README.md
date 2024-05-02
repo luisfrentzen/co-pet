@@ -36,17 +36,36 @@ A node and a flask process should be spawned with no error. You can now start ch
 
 ## Controls
 
-Now Leo will wander around your desktop freely. To interact with Leo via a chat interface press `CMD/CTRL` and `l` to spawn an input box. Simply type in your chat and wait for Leo to respond. Example:
+<img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/051db5e7-6aa9-4531-98cf-31c8f983d0b3">
+
+Now Leo will wander around your desktop freely. To interact with Leo via a chat interface press `CMD/CTRL` and `l` to spawn an input box. 
+
+<img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/ed22a87f-6d31-4817-8bd4-83fa4d6910c9">
+
+Simply type in your chat and wait for Leo to respond. Example:
 ```
 hi, tell me about yourself
 ```
+
+<img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/506767c2-d924-4b5a-8074-9ea641a0708d">
 
 If you want Leo to take a look at your screen, add `/screenshot` in front of your question. Example:
 ```
 /screenshot take a look at this!
 ```
 
+<img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/927db7b7-a8d7-4aff-9219-645e958a5dc5">
+
 if you want Leo to search for something for you on the internet, add `/search` in front of your query. Example:
 ```
-/search who's Indonesia's first president?
+/search what is the country with the most islands in the world?
 ```
+
+<img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/f38ab648-abd0-4ff1-a451-a82f8809fcdd">
+
+## Future Plans
+
+I hope you are enjoying Leo so far! We are not to stop at this point, here are some features that we are planning for:
+- function calling
+- more pet interactions
+- speech interface
