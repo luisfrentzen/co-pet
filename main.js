@@ -149,11 +149,11 @@ function createChatboxResponseWindow() {
     width: 1000 * config.SCALE,
     height: 600 * config.SCALE,
     transparent: true,
-    frame: true,
+    frame: false,
     skipTaskbar: true,
     useContentSize: true,
     resizable: true,
-    show: true,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
