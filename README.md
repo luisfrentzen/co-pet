@@ -20,7 +20,7 @@ Make sure that both installation processes are completed successfully.
 
 ## Windows: Setup Registry for Explorer Context Menu
 
-Edit the registry file, fill the `path_to_project` with the absolute path of the project folder
+Edit `.reg` registry file, fill the `path_to_project` with the absolute path of the project folder
 ```
 Windows Registry Editor Version 5.00
 
@@ -32,7 +32,7 @@ Windows Registry Editor Version 5.00
 @="cmd.exe /c pythonw \"[path_to_project]\\context_script.py\" --directory \"%V\""
 ```
 
-Double click the `.reg` file
+Save and Double click the `.reg` file
 
 ## Starting Leo
 
