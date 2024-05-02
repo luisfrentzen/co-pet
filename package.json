@@ -55,6 +55,7 @@
     "mimic-response": "^1.0.1",
     "ms": "^2.1.2",
     "normalize-url": "^6.1.0",
+    "npm": "^10.7.0",
     "object-keys": "^1.1.1",
     "once": "^1.4.0",
     "p-cancelable": "^2.1.1",
