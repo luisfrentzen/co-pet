@@ -118,7 +118,7 @@ function createPetWindow() {
   petWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   petWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   petWindow.setIgnoreMouseEvents(true);
-  petWindow.webContents.openDevTools({mode: 'detach'});
+  // petWindow.webContents.openDevTools({mode: 'detach'});
 }
 
 function createChatboxInputWindow() {

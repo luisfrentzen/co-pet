@@ -36,7 +36,7 @@ def screenshot(query: str):
     new_width = int(width * 0.5)
     new_height = int(height * 0.5)
     im = im.resize((new_width, new_height), Image.Resampling.LANCZOS)
-    im = im.convert('P', palette=Image.ADAPTIVE, colors=30)
+    im = im.convert('P', palette=Image.ADAPTIVE, colors=63)
     im.save("monitor.png")
     response = gemini.query_with_image("monitor.png", f'You are a computer pet cat assistant named Leo. Your task is to chat and entertain the user while he dally with his computer. Act playful and friendly. Now act as if you are looking to the user\'s screen and answer this question: "{query}". You are the orange pixel cat, don\'t describe or comment on yourself.')
     return response
