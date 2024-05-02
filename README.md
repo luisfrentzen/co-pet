@@ -1,5 +1,7 @@
 # Leo: co-pet virtual assistant
 
+![Leo Banner](https://github.com/luisfrentzen/co-pet/assets/54829425/af2765fe-cbf2-458b-8b66-8a905c0a4a92)
+
 ## Installation
 
 Before proceeding please make sure that you have the latest [Poetry](https://python-poetry.org/) and [NPM](https://www.npmjs.com/) installed.
