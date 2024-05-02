@@ -44,7 +44,7 @@ Now Leo will wander around your desktop freely. To interact with Leo via a chat 
 
 Simply type in your chat and wait for Leo to respond. Example:
 ```
-hi, tell me about yourself
+hi Leo!
 ```
 
 <img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/506767c2-d924-4b5a-8074-9ea641a0708d">
