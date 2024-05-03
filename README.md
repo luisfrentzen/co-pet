@@ -20,7 +20,7 @@ Make sure that both installation processes are completed successfully.
 
 ## Windows: Setup Registry for Explorer Context Menu
 
-Edit `.reg` registry file, fill the `path_to_project` with the absolute path of the project folder
+Edit the `.reg` registry file, fill out the `path_to_project` with the absolute path of this project folder
 ```
 Windows Registry Editor Version 5.00
 
@@ -32,7 +32,7 @@ Windows Registry Editor Version 5.00
 @="cmd.exe /c pythonw \"[path_to_project]\\context_script.py\" --directory \"%V\""
 ```
 
-Save and Double click the `.reg` file
+Save and double click the `.reg` file
 
 ## Starting Leo
 
@@ -79,11 +79,9 @@ if you want Leo to search for something for you on the internet, add `/search` i
 
 <img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/54829425/f38ab648-abd0-4ff1-a451-a82f8809fcdd">
 
-If you want Leo to explain the directory in your pc. Example:
-```
-right click on the folder
-click on Co-pet read dir menu
-```
+**(Windows Only)** If you want Leo to describe a directory on your computer, you can access this context menu that you registered before. Right-click on the target folder,
+and select Leo's read dir menu.
+
 <img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/62512030/f8d9dda9-dddd-43ee-ac27-d35ea807b7b0">
 <img width="1470" alt="image" src="https://github.com/luisfrentzen/co-pet/assets/62512030/a7e579d1-7aa5-4f73-89fa-4e181cf4c711">
 
