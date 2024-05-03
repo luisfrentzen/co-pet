@@ -136,7 +136,7 @@ class GeminiLLM():
             prompt += "Consider the answer and give your own answer or reconstruct to a new sentence so that the answer feels friendly"
 
             gemini_response = self.query(prompt)
-            response = response + "\n" + gemini_response
+            response = gemini_response
             self.pop_history()
             
         else:
